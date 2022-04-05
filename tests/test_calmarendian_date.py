@@ -1,0 +1,377 @@
+import unittest
+from collections import namedtuple
+
+from npm_calmarendian_date.calmarendian_date import CalmarendianDate, EraMarker
+from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
+from npm_calmarendian_date.exceptions import CalmarendianDateError
+from npm_calmarendian_date.c_date_config import CDateConfig
+from typing import Any
+
+
+class BasicADRTests(unittest.TestCase):
+    ResultSet = namedtuple('ResultSet', 'gc c s w d')
+
+    def test_type_error(self):
+        with self.assertRaises(CalmarendianDateError):
+            s: Any = "Random String"
+            CalmarendianDate(s)
+        with self.assertRaisesRegex(CalmarendianDateError, "'tuple'"):
+            s: Any = (23, 45)
+            CalmarendianDate(s)
+
+    def test_out_of_range_low(self):
+        with self.assertRaises(CalmarendianDateError):
+            CalmarendianDate(-2_000_000)
+
+    def test_out_of_range_high(self):
+        with self.assertRaises(CalmarendianDateError):
+            CalmarendianDate(200_000_000)
+
+    def test_simple_adr_set(self):
+        d = CalmarendianDate(1_234_567)
+        self.assertEqual(1_234_567, d.adr)
+        d.adr = 1_234_568
+        self.assertEqual(1_234_568, d.adr)
+
+    def test_cycle_decode(self):
+        items = [
+            {"days": 2454, "cycle": 1},
+            {"days": 2455, "cycle": 2},
+            {"days": 14_724, "cycle": 6},
+            {"days": 14_725, "cycle": 7},
+            {"days": 17_181, "cycle": 7},
+            {"days": 17_182, "cycle": 8},
+            {"days": 861_505, "cycle": 352},
+            {"days": 1_718_100, "cycle": 700},
+        ]
+        for item in items:
+            self.assertEqual(item["cycle"], CalmarendianDate.cycle_decode(item["days"]))
+
+    def test_basic_setting(self):
+        data = [
+            -5000,
+            0,
+            50000,
+            CDateConfig.APOCALYPSE_EPOCH_ADR
+        ]
+        for item in data:
+            with self.subTest(i=item):
+                d = CalmarendianDate(item)
+                self.assertEqual(item, d.adr)
+
+    def test_elemental_adr_set(self):
+        items = [
+            {"input": -1_718_100, "result": self.ResultSet(0, 1, 1, 1, 1)},
+            {"input": -30_825, "result": self.ResultSet(0, 688, 4, 5, 6)},
+            {"input": 0, "result": self.ResultSet(0, 700, 7, 51, 8)},
+            {"input": 1, "result": self.ResultSet(1, 1, 1, 1, 1)},
+            {"input": 1_035_926, "result": self.ResultSet(1, 423, 1, 23, 4)},
+            {"input": 1_905_361, "result": self.ResultSet(2, 77, 3, 4, 5)},
+            {"input": 1_906_784, "result": self.ResultSet(2, 77, 7, 7, 7)},
+            {"input": 1_907_093, "result": self.ResultSet(2, 78, 1, 1, 1)},
+            {"input": 170_091_999, "result": self.ResultSet(99, 700, 7, 51, 8)},
+        ]
+        for item in items:
+            with self.subTest(i=item["input"]):
+                d = CalmarendianDate(item["input"])
+                r = item["result"]
+                self.assertEqual(r.gc, d.grand_cycle.number)
+                self.assertEqual(r.c, d.cycle.number)
+                self.assertEqual(r.s, d.season.number)
+                self.assertEqual(r.w, d.week.number)
+                self.assertEqual(r.d, d.day.number)
+
+    def test_output_gcn(self):
+        items = [
+            {"input": CDateConfig.MIN_ADR, "result": "00-001-1-01-1"},
+            {"input": -30_825, "result": "00-688-4-05-6"},
+            {"input": 0, "result": "00-700-7-51-8"},
+            {"input": 1, "result": "01-001-1-01-1"},
+            {"input": 1_035_926, "result": "01-423-1-23-4"},
+            {"input": 1_718_111, "result": "02-001-1-02-3"},
+            {"input": 1_905_361, "result": "02-077-3-04-5"},
+            {"input": 1_906_784, "result": "02-077-7-07-7"},
+            {"input": CDateConfig.TEMP_BASELINE_ADR, "result": "02-078-1-01-1"},
+            {"input": CDateConfig.MAX_ADR, "result": "99-700-7-51-8"},
+        ]
+        for item in items:
+            # Test adr -> gcn -> adr
+            d = CalmarendianDate(item["input"])
+            self.assertEqual(item["result"], d.grand_cycle_notation())
+            self.assertEqual(item["result"], d.gcn())
+            dx = CalmarendianDate.from_date_string(d.gcn())
+            self.assertEqual(d.adr, dx.adr)
+
+            # Test gcn -> adr -> gcn
+            dy = CalmarendianDate.from_date_string(item["result"])
+            self.assertEqual(item["input"], dy.adr)
+            dz = CalmarendianDate(dy.adr)
+            self.assertEqual(dy.gcn(), dz.gcn())
+
+    def test_abs_cycle_ref(self):
+        data = [
+            {"input": CDateConfig.MIN_ADR, "result": (699, EraMarker.BZ)},
+            {"input": -30_825, "result": (12, EraMarker.BZ)},
+            {"input": 0, "result": (0, EraMarker.BZ)},
+            {"input": 1, "result": (1, EraMarker.BH)},
+            {"input": 1_035_926, "result": (423, EraMarker.BH)},
+            {"input": 1_718_111, "result": (701, EraMarker.CE)},
+            {"input": 1_905_361, "result": (777, EraMarker.CE)},
+            {"input": 1_906_784, "result": (777, EraMarker.CE)},
+            {"input": CDateConfig.TEMP_BASELINE_ADR, "result": (778, EraMarker.CE)},
+            {"input": 24_541_844, "result": (9999, EraMarker.CE)},
+        ]
+        for item in data:
+            d = CalmarendianDate(item["input"])
+            self.assertTupleEqual(item["result"], d.absolute_cycle_ref())
+
+    def test_abs_season_ref(self):
+        data = [
+            {"input": CDateConfig.MIN_ADR, "result": -4899},
+            {"input": -30_825, "result": -87},
+            {"input": 0, "result": 0},
+            {"input": 1, "result": 1},
+            {"input": 1_035_926, "result": 2955},
+            {"input": 1_718_111, "result": 4901},
+            {"input": 1_905_361, "result": 5435},
+            {"input": 1_906_784, "result": 5439},
+            {"input": CDateConfig.TEMP_BASELINE_ADR, "result": 5440},
+            {"input": CDateConfig.MAX_ADR, "result": 485_100},
+        ]
+        for item in data:
+            with self.subTest(i=item["input"]):
+                d = CalmarendianDate(item["input"])
+                self.assertEqual(item["result"], d.absolute_season_ref())
+
+    def test_output_csn(self):
+        data = [
+            {"input": CDateConfig.MIN_ADR, "result": "699-1-01-1 BZ"},
+            {"input": -30_825, "result": "012-4-05-6 BZ"},
+            {"input": 0, "result": "000-7-51-8 BZ"},
+            {"input": 1, "result": "001-1-01-1"},
+            {"input": 1_035_926, "result": "423-1-23-4"},
+            {"input": 1_718_111, "result": "701-1-02-3"},
+            {"input": 1_905_361, "result": "777-3-04-5"},
+            {"input": 1_906_784, "result": "777-7-07-7"},
+            {"input": CDateConfig.TEMP_BASELINE_ADR, "result": "778-1-01-1"},
+            {"input": 24_541_844, "result": "9999-7-51-4"},
+        ]
+        for item in data:
+            with self.subTest(i=item["input"]):
+                # Test adr -> csn -> adr
+                d = CalmarendianDate(item["input"])
+                self.assertEqual(item["result"], d.common_symbolic_notation())
+                self.assertEqual(item["result"], d.csn())
+                dx = CalmarendianDate.from_date_string(d.csn())
+                self.assertEqual(d.adr, dx.adr)
+
+                # Test csn -> adr -> csn
+                dy = CalmarendianDate.from_date_string(item["result"])
+                self.assertEqual(item["input"], dy.adr)
+                dz = CalmarendianDate(dy.adr)
+                self.assertEqual(dy.csn(), dz.csn())
+
+    def test_csn_era_variants(self):
+        d = CalmarendianDate(-30_825)
+        self.assertEqual("012-4-05-6 BZ", d.common_symbolic_notation())
+        self.assertEqual("012-4-05-6 BZ", d.common_symbolic_notation(era_marker="BH"))
+        self.assertEqual("012-4-05-6 BZ", d.common_symbolic_notation(era_marker="CE"))
+        d = CalmarendianDate(1_035_926)
+        self.assertEqual("423-1-23-4", d.common_symbolic_notation())
+        self.assertEqual("423-1-23-4 BH", d.common_symbolic_notation(era_marker="BH"))
+        self.assertEqual("423-1-23-4 BH", d.common_symbolic_notation(era_marker="CE"))
+        d = CalmarendianDate(1_905_361)
+        self.assertEqual("777-3-04-5", d.common_symbolic_notation())
+        self.assertEqual("777-3-04-5", d.common_symbolic_notation(era_marker="BH"))
+        self.assertEqual("777-3-04-5 CE", d.common_symbolic_notation(era_marker="ce"))
+
+
+class CreateFromFactoriesTests(unittest.TestCase):
+    def test_create_from_objects(self):
+        data = [
+            {
+                "input": {
+                    "grand_cycle": GrandCycle(1),
+                    "cycle": CycleInGrandCycle(423),
+                    "season": Season(1),
+                    "week": Week(23, Season(1)),
+                    "day": Day(4, Week(23, Season(1)), CycleInGrandCycle(423))
+                },
+                "result": {
+                    "gcn": "01-423-1-23-4",
+                    "adr": 1_035_926
+                }
+            }
+        ]
+        for item in data:
+            d = CalmarendianDate.from_objects(**item["input"])
+            self.assertEqual(item["result"]["gcn"], d.gcn())
+            self.assertEqual(item["result"]["adr"], d.adr)
+
+    def test_create_from_numbers(self):
+        data = [
+            {"input": (1, 423, 1, 23, 4),
+             "result": {
+                 "gcn": "01-423-1-23-4",
+                 "adr": 1_035_926
+             }},
+            {"input": (2, 1, 1, 2, 3),
+             "result": {
+                 "gcn": "02-001-1-02-3",
+                 "adr": 1_718_111
+             }},
+        ]
+        for item in data:
+            d = CalmarendianDate.from_numbers(*item["input"])
+            self.assertEqual(item["result"]["gcn"], d.gcn())
+            self.assertEqual(item["result"]["adr"], d.adr)
+
+    def test_create_from_gcn(self):
+        data = [
+            {"date_string": '00-001-1-01-1', "result": CDateConfig.MIN_ADR},
+            {"date_string": '00-688-4-05-6', "result": -30_825},
+            {"date_string": '00-700-7-51-8', "result": 0},
+            {"date_string": '01-001-1-01-1', "result": 1},
+            {"date_string": '01-423-1-23-4', "result": 1_035_926},
+            {"date_string": '02-001-1-02-3', "result": 1_718_111},
+            {"date_string": '02-077-3-04-5', "result": 1_905_361},
+            {"date_string": '02-077-7-07-7', "result": 1_906_784},
+            {"date_string": '02-078-1-01-1', "result": CDateConfig.TEMP_BASELINE_ADR},
+            {"date_string": '15-199-7-51-4', "result": 24_541_844},
+            {"date_string": '99-700-7-51-8', "result": CDateConfig.MAX_ADR},
+        ]
+        for item in data:
+            d = CalmarendianDate.from_date_string(item["date_string"])
+            self.assertEqual(item["result"], d.adr)
+
+    def test_create_from_csn(self):
+        data = [
+            {"date_string": '699-1-01-1 BZ', "result": CDateConfig.MIN_ADR},
+            {"date_string": '012-4-05-6 BZ', "result": -30_825},
+            {"date_string": '000-7-51-8 BZ', "result": 0},
+            {"date_string": '001-1-01-1', "result": 1},
+            {"date_string": '423-1-23-4', "result": 1_035_926},
+            {"date_string": '701-1-02-3', "result": 1_718_111},
+            {"date_string": '777-3-04-5', "result": 1_905_361},
+            {"date_string": '777-7-07-7', "result": 1_906_784},
+            {"date_string": '778-1-01-1', "result": CDateConfig.TEMP_BASELINE_ADR},
+            {"date_string": '9999-7-51-4', "result": 24_541_844},
+        ]
+        for item in data:
+            d = CalmarendianDate.from_date_string(item["date_string"])
+            self.assertEqual(item["result"], d.adr)
+
+
+class ColloquialDateTests(unittest.TestCase):
+    def test_day_of_the_week_names(self):
+        d = Day(7, Week(45, Season(5)), CycleInGrandCycle(199))
+        self.assertEqual("Sunday", d.name())
+        self.assertEqual("Su", d.short_name())
+        d = Day(5, Week(51, Season(7)), CycleInGrandCycle(140))
+        self.assertEqual("Festival 5", d.short_name())
+        self.assertEqual("Festival Five", d.name())
+
+    def test_month_names(self):
+        data = [
+            (1, "Winter"),
+            (2, "Thaw"),
+            (3, "Spring"),
+            (4, "Perihelion"),
+            (5, "High Summer"),
+            (6, "Autumn"),
+            (7, "Onset")
+        ]
+        for i in data:
+            s = Season(i[0])
+            self.assertEqual(i[1], s.name())
+
+    def test_colloquial_standard(self):
+        d = CalmarendianDate(-1_230_683)
+        self.assertEqual("Sunday, Week 6 of High Summer 501 BZ", d.colloquial_date())
+        self.assertEqual("Sunday, Week 6 of High Summer 501 BZ", d.colloquial_date(era_marker="BH"))
+        self.assertEqual("Sunday, Week 6 of High Summer 501 BZ", d.colloquial_date(era_marker="ce"))
+        d = CalmarendianDate(543_511)
+        self.assertEqual("Saturday, Week 5 of Perihelion 222", d.colloquial_date())
+        self.assertEqual("Saturday, Week 5 of Perihelion 222 BH", d.colloquial_date(era_marker="BH"))
+        self.assertEqual("Saturday, Week 5 of Perihelion 222 BH", d.colloquial_date(era_marker="CE"))
+        d = CalmarendianDate(1_907_242)
+        self.assertEqual("Wednesday, Week 22 of Winter 778", d.colloquial_date())
+        self.assertEqual("Wednesday, Week 22 of Winter 778", d.colloquial_date(era_marker="BH"))
+        self.assertEqual("Wednesday, Week 22 of Winter 778 CE", d.colloquial_date(era_marker="CE"))
+
+    def test_colloquial_festival(self):
+        d = CalmarendianDate(-171_812)
+        self.assertEqual("Festival 6 of 70 BZ", d.colloquial_date())
+        self.assertEqual("Festival 6 of 70 BZ", d.colloquial_date(era_marker="BH"))
+        self.assertEqual("Festival 6 of 70 BZ", d.colloquial_date(era_marker="CE"))
+        d = CalmarendianDate(1_200_210)
+        self.assertEqual("Festival 1 of 489", d.colloquial_date())
+        self.assertEqual("Festival 1 of 489 BH", d.colloquial_date(era_marker="BH"))
+        self.assertEqual("Festival 1 of 489 BH", d.colloquial_date(era_marker="CE"))
+        d = CalmarendianDate.from_numbers(2, 77, 7, 51, 7)
+        self.assertEqual("Festival 7 of 777", d.colloquial_date())
+        self.assertEqual("Festival 7 of 777", d.colloquial_date(era_marker="BH"))
+        self.assertEqual("Festival 7 of 777 CE", d.colloquial_date(era_marker="CE"))
+
+    def test_colloquial_standard_verbose(self):
+        d = CalmarendianDate(-1_559_813)
+        self.assertEqual("Monday of Week 23 of Perihelion 635 Before Time Zero",
+                         d.colloquial_date(verbose=True))
+        self.assertEqual("Monday of Week 23 of Perihelion 635 Before Time Zero",
+                         d.colloquial_date(era_marker="BH", verbose=True))
+        self.assertEqual("Monday of Week 23 of Perihelion 635 Before Time Zero",
+                         d.colloquial_date(era_marker="CE", verbose=True))
+        d = CalmarendianDate(3)
+        self.assertEqual("Wednesday of Week 1 of Winter 1",
+                         d.colloquial_date(verbose=True))
+        self.assertEqual("Wednesday of Week 1 of Winter 1 Before History",
+                         d.colloquial_date(era_marker="BH", verbose=True))
+        self.assertEqual("Wednesday of Week 1 of Winter 1 Before History",
+                         d.colloquial_date(era_marker="CE", verbose=True))
+        d = CalmarendianDate(1_484_537)
+        self.assertEqual("Friday of Week 45 of Autumn 605",
+                         d.colloquial_date(verbose=True))
+        self.assertEqual("Friday of Week 45 of Autumn 605",
+                         d.colloquial_date(era_marker="BH", verbose=True))
+        self.assertEqual("Friday of Week 45 of Autumn 605 Current Era",
+                         d.colloquial_date(era_marker="CE", verbose=True))
+
+    def test_colloquial_festival_verbose(self):
+        d = CalmarendianDate(-323_986)
+        self.assertEqual("Festival Four of 132 Before Time Zero", d.colloquial_date(verbose=True))
+        self.assertEqual("Festival Four of 132 Before Time Zero", d.colloquial_date(era_marker="BH", verbose=True))
+        self.assertEqual("Festival Four of 132 Before Time Zero", d.colloquial_date(era_marker="CE", verbose=True))
+        d = CalmarendianDate(1_048_041)
+        self.assertEqual("Festival Seven of 427", d.colloquial_date(verbose=True))
+        self.assertEqual("Festival Seven of 427 Before History", d.colloquial_date(era_marker="BH", verbose=True))
+        self.assertEqual("Festival Seven of 427 Before History", d.colloquial_date(era_marker="CE", verbose=True))
+        d = CalmarendianDate(1_718_101)
+        self.assertEqual("Festival Eight of 700", d.colloquial_date(verbose=True))
+        self.assertEqual("Festival Eight of 700", d.colloquial_date(era_marker="BH", verbose=True))
+        self.assertEqual("Festival Eight of 700 Current Era", d.colloquial_date(era_marker="CE", verbose=True))
+
+    def test_str_and_repr(self):
+        data = [
+            {"input": CDateConfig.MIN_ADR, "result": "699-1-01-1 BZ"},
+            {"input": -30_825, "result": "012-4-05-6 BZ"},
+            {"input": 0, "result": "000-7-51-8 BZ"},
+            {"input": 1, "result": "001-1-01-1"},
+            {"input": 1_035_933, "result": "423-1-24-4"},
+            {"input": 1_718_111, "result": "701-1-02-3"},
+            {"input": 1_905_361, "result": "777-3-04-5"},
+            {"input": 1_906_784, "result": "777-7-07-7"},
+            {"input": CDateConfig.TEMP_BASELINE_ADR, "result": "778-1-01-1"},
+            {"input": 24_541_844, "result": "9999-7-51-4"},
+        ]
+        for item in data:
+            with self.subTest(i=item["input"]):
+                d = CalmarendianDate(item["input"])
+                self.assertEqual(item["result"], str(d))
+                self.assertEqual(f"CalmarendianDate({d.adr})", repr(d))
+                dx = eval(repr(d))
+                self.assertTrue(d == dx)
+                self.assertFalse(d is dx)
+
+
+if __name__ == '__main__':
+    unittest.main()
