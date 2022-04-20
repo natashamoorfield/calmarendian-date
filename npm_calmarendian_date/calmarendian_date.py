@@ -17,6 +17,11 @@ class EraMarker(Enum):
 
 @total_ordering
 class CalmarendianDate(object):
+    """
+    The CalmarendianDate class is to the Calendar of Lorelei what, in Python terms, date is to Earth's Gregorian
+    Calendar. In particular, CalmarendianDate naively assumes that its calendar always was
+    (and always will be) in effect even though it demonstrably was not.
+    """
     def __init__(self, new_adr: int):
         self.adr = new_adr
         self.grand_cycle, self.cycle, self.season, self.week, self.day = self.elements_from_adr()
@@ -239,10 +244,10 @@ class CalmarendianDate(object):
             return f"{day_name} of {acr}{era_marker}"
         return f"{self.day.name()}{first_separator} Week {self.week.number} of {self.season.name()} {acr}{era_marker}"
 
-    def gcn(self):
+    def gcn(self) -> str:
         return self.grand_cycle_notation()
 
-    def csn(self):
+    def csn(self) -> str:
         return self.common_symbolic_notation()
 
     # -- DATE COMPARISON -- #
@@ -259,12 +264,12 @@ class CalmarendianDate(object):
 
     # -- str and repr -- #
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         The default representation of a CalmarendianDate object is the Common Symbolic Notation format that would
         generally be used by Calmarendians themselves.
         """
         return self.csn()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"CalmarendianDate({self.adr})"
