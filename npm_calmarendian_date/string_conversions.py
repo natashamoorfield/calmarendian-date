@@ -8,17 +8,22 @@ from math import ceil
 
 class DateString(object):
     """
-    Class that will take a date string in Grand Cycle Notation or Common Symbolic Notation format and parse it into
-    a five-tuple suitable for instantiating a CalmarendianDate object via the from_numbers method.
+    The DateString Class
+
+    A class that will take a date string in Grand Cycle Notation or Common Symbolic Notation format and parse it into
+    a five-tuple suitable for instantiating a CalmarendianDate object via its from_numbers method.
     """
     NumericGCNSequence = Tuple[int, int, int, int, int]
 
     def __init__(self, date_string: str):
         """
+        Constructor
+
         Attempts to match the given date string against the RegEx for a GCN or CSN date string.
         Raises an exception if the given date string does not match either format
         otherwise the Match object is passed to the relevant parser to extract the date's numeric GCN
         elements. NOTE: beyond RegEx matching, this method performs no other error checking.
+
         :param date_string: A date string which should conform to either GCN or CSN format rules.
         """
         try:
@@ -45,6 +50,7 @@ class DateString(object):
     def parsed_gcn_date(m: Match) -> NumericGCNSequence:
         """
         Extract the numeric date elements from the given Match object.
+
         :param m: A Match object which should already have matched against
         the RegEx for a GCN date string.
         :return: A five-tuple of GCN date elements.
@@ -54,10 +60,12 @@ class DateString(object):
     @staticmethod
     def parsed_csn_date(m: Match) -> NumericGCNSequence:
         """
-        Extract the numeric date elements from the given Match object, converting, in the process,
-        the cycle number into a grand_cycle, cycle_in_grand_cycle pair. Note that, apart from using a 'BZ' era marker to
-        negate the cycle number, the era marker has no effect on the calculation. A warning is raised, however, if
+        Return the numeric date elements from the given Match object.
+
+        Note that the process uses the date's era marker, if set to BZ, to negate the cycle value but
+        otherwise the era marker has no effect on the parsing process. A warning is raised, however, if
         the era marker is incompatible with the given cycle number.
+        
         :param m: A Match object which should already have matched against
         the RegEx for a CSN date string.
         :return: A five-tuple of GCN date elements.
