@@ -8,5 +8,7 @@ This package provides a `CalmarendianDate` class which is to the Calendar of Lor
 ## Usage
 *Documentation awaited.*
 
-## Python Version
-This package was developed using `Python 3.9`; currently it probably does _not_ work under any earlier versions.  Hopefully we will verify (and rectify) this situation for (some) earlier versions in due course.
+## Requirements
+
+`npm_calmarendian_date` has been tested with Python 3.8, 3.9 and 3.10.
+`npm_calmarendian_date` has no other dependencies.
