@@ -17,8 +17,8 @@ class CDateConfig(object):
     DAYS_per_CYCLE: float = DAYS_per_GRAND_CYCLE / 700
 
     # Regex representation of Grand Cycle and Common symbolic Notations
-    GCN_DATE_STRING_RE = re.compile('^([0-9]{2})-([0-7][0-9]{2})-([1-7])-([0-5][0-9])-([1-8])$')
-    CSN_DATE_STRING_RE = re.compile('^([1-9]?[0-9]{3})-([1-7])-([0-5][0-9])-([1-8]) *(BZ|BH|CE)?$', re.IGNORECASE)
+    GCN_DATE_STRING_RE = re.compile(r'^(\d{2})-([0-7]\d{2})-([1-7])-([0-5]\d)-([1-8])$')
+    CSN_DATE_STRING_RE = re.compile(r'^([1-9]?\d{3})-([1-7])-([0-5]\d)-([1-8]) *(BZ|BH|CE)?$', re.IGNORECASE)
 
     # Epoch for Apocalypse Reckoning
     TEMP_BASELINE_ADR: int = 1_907_093  # New Cycle Day 778
