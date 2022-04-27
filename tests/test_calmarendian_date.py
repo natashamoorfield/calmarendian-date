@@ -263,13 +263,21 @@ class CreateFromFactoriesTests(unittest.TestCase):
 
 
 class ColloquialDateTests(unittest.TestCase):
+    @staticmethod
+    def c_day(offset: int) -> Day:
+        return CalmarendianDate(1_889_897 + offset).day
+
     def test_day_of_the_week_names(self):
-        d = Day(7, Week(45, Season(5)), CycleInGrandCycle(199))
+        d = self.c_day(7)
         self.assertEqual("Sunday", d.name())
-        self.assertEqual("Su", d.short_name())
-        d = Day(5, Week(51, Season(7)), CycleInGrandCycle(140))
+        self.assertEqual("Sun", d.short_name())
+        d = self.c_day(12)
         self.assertEqual("Festival 5", d.short_name())
         self.assertEqual("Festival Five", d.name())
+
+    def test_short_day_names(self):
+        day_names = [self.c_day(x).short_name() for x in range(1, 8)]  # default day-name shortening
+        self.assertSequenceEqual(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], day_names)
 
     def test_month_names(self):
         data = [

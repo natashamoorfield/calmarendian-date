@@ -280,4 +280,4 @@ class Day(object):
         """
         if self.festival:
             return f"Festival {self.number}"
-        return self.name()[:2]
+        return self.name()[:3]
