@@ -275,9 +275,31 @@ class ColloquialDateTests(unittest.TestCase):
         self.assertEqual("Festival 5", d.short_name())
         self.assertEqual("Festival Five", d.name())
 
-    def test_short_day_names(self):
-        day_names = [self.c_day(x).short_name() for x in range(1, 8)]  # default day-name shortening
+    def test_short_day_names_default(self):
+        day_names = [self.c_day(x).short_name() for x in range(1, 8)]
         self.assertSequenceEqual(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], day_names)
+
+    def test_short_day_names_too_long(self):
+        # If a chars value greater than 3 given, default to three
+        day_names = [self.c_day(x).short_name(chars=6) for x in range(1, 8)]
+        self.assertSequenceEqual(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], day_names)
+
+    def test_short_day_names_short(self):
+        day_names = [self.c_day(x).short_name(chars=3) for x in range(1, 8)]
+        self.assertSequenceEqual(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], day_names)
+
+    def test_short_day_names_shorter(self):
+        day_names = [self.c_day(x).short_name(chars=2) for x in range(1, 8)]
+        self.assertSequenceEqual(["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"], day_names)
+
+    def test_short_day_names_shortest(self):
+        day_names = [self.c_day(x).short_name(chars=1) for x in range(1, 8)]
+        self.assertSequenceEqual(["M", "T", "W", "Th", "F", "S", "Su"], day_names)
+
+    def test_short_day_names_too_short(self):
+        # If a chars value less than one given, default to 1
+        day_names = [self.c_day(x).short_name(chars=0) for x in range(1, 8)]
+        self.assertSequenceEqual(["M", "T", "W", "Th", "F", "S", "Su"], day_names)
 
     def test_month_names(self):
         data = [
