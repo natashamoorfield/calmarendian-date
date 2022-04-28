@@ -239,9 +239,10 @@ class CalmarendianDate(object):
             era_marker = f" {em.value}" if verbose else f" {em.name}"
         else:
             era_marker = ""
-        if self.week.number == 51:
-            day_name = self.day.name() if verbose else self.day.short_name()
-            return f"{day_name} of {acr}{era_marker}"
+        if self.day.festival:
+            if verbose:
+                return f"{self.day.name()} of {acr}{era_marker}"
+            return f"Festival {self.day.number} of {acr}{era_marker}"
         return f"{self.day.name()}{first_separator} Week {self.week.number} of {self.season.name()} {acr}{era_marker}"
 
     def gcn(self) -> str:

@@ -272,7 +272,7 @@ class ColloquialDateTests(unittest.TestCase):
         self.assertEqual("Sunday", d.name())
         self.assertEqual("Sun", d.short_name())
         d = self.c_day(12)
-        self.assertEqual("Festival 5", d.short_name())
+        self.assertEqual("\u03A9.5", d.short_name())
         self.assertEqual("Festival Five", d.name())
 
     def test_short_day_names_default(self):
@@ -304,8 +304,8 @@ class ColloquialDateTests(unittest.TestCase):
     def test_short_day_festival(self):
         self.assertEqual("\u03A9.1", self.c_day(8).short_name())
         self.assertEqual("\u03A9.2", self.c_day(9).short_name(chars=3))
-        self.assertEqual("\u03A9.3", self.c_day(10).short_name(chars=2))
-        self.assertEqual("\u03A9.7", self.c_day(14).short_name(chars=1))
+        self.assertEqual("\u03A93", self.c_day(10).short_name(chars=2))
+        self.assertEqual("\u03A97", self.c_day(14).short_name(chars=1))
 
     def test_month_names(self):
         data = [

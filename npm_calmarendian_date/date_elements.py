@@ -289,9 +289,8 @@ class Day(object):
         """
         chars = max(1, min(3, chars))
         if self.festival:
-            return f"Festival {self.number}"
-            # w = ['\u03A9', '\u03A9', '\u03A9.'][chars - 1]
-            # return f"{w}{self.number}"
+            w = ['\u03A9', '\u03A9', '\u03A9.'][chars - 1]
+            return f"{w}{self.number}"
         if chars == 1 and self.number in [4, 7]:
             chars = 2
         return self.name()[:chars]
