@@ -274,10 +274,15 @@ class Day(object):
             return f"Festival {self.LONG_NUMBERS[self.number - 1]}"
         return self.DAY_NAMES[self.number - 1]
 
-    def short_name(self) -> str:
+    def short_name(self, *, chars: int = 3) -> str:
         """
         Return the short, abbreviated name of the day.
         """
+        chars = max(1, min(3, chars))
         if self.festival:
             return f"Festival {self.number}"
-        return self.name()[:3]
+            # w = ['\u03A9', '\u03A9', '\u03A9.'][chars - 1]
+            # return f"{w}{self.number}"
+        if chars == 1 and self.number in [4, 7]:
+            chars = 2
+        return self.name()[:chars]
