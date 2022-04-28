@@ -301,6 +301,12 @@ class ColloquialDateTests(unittest.TestCase):
         day_names = [self.c_day(x).short_name(chars=0) for x in range(1, 8)]
         self.assertSequenceEqual(["M", "T", "W", "Th", "F", "S", "Su"], day_names)
 
+    def test_short_day_festival(self):
+        self.assertEqual("\u03A9.1", self.c_day(8).short_name())
+        self.assertEqual("\u03A9.2", self.c_day(9).short_name(chars=3))
+        self.assertEqual("\u03A9.3", self.c_day(10).short_name(chars=2))
+        self.assertEqual("\u03A9.7", self.c_day(14).short_name(chars=1))
+
     def test_month_names(self):
         data = [
             (1, "Winter"),
