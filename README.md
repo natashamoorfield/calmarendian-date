@@ -16,13 +16,7 @@ Package Index (PyPI)](https://pypi.org/project/npm_calmarendian_date).
 *We strongly recommend installing our packages in a virtual environment rather than cluttering up your system's Python installation with all this junk.*
 
 ```bash
-pip install npm_calmarendian_date
-```
-
-or
-
-```bash
-pip install -e git+https://github.com/natashamoorfield/npm_calmarendian_date
+pip install npm-calmarendian-date
 ```
 
 ## Usage
