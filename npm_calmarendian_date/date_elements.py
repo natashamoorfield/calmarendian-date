@@ -280,7 +280,8 @@ class Day(object):
 
         For the short form of the name (chars == 3, default), return the first three letters of the name.
         For the shorter form of the name (chars == 2), return thr first two letters of the name.
-        For the shortest form of the name (chars == 1), return the first letter only (or Th for Thursday, Su for Sunday).
+        For the shortest form of the name (chars == 1), return the first letter only
+        (or Th for Thursday, Su for Sunday).
         For festival days return the day number prefixed with the math letter omega, padded with a dot if chars == 3.
 
         :param chars:  values less than 1 will be treated as 1, greater than 3 as 3.
