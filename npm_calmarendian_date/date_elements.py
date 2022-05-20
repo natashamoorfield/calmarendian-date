@@ -203,6 +203,60 @@ class Week(object):
     Each week is named, although these names see very little day-to-day use.
 
     """
+
+    WEEK_NAMES: List[str] = [
+        'Saponaria',
+        'Tulip',
+        'Marigold',
+        'Yarrow',
+        'Alyssum',
+        'Daisy',
+        'Buttercup',
+        'Amaranthus',
+        'Tsisana',
+        'Iris',
+        'Dahlia',
+        'Foxglove',
+        'Daphne',
+        'Zenobia',
+        'Anise',
+        'Kalmia',
+        'Nerine',
+        'Delphinium',
+        'Lilly',
+        'Poppy',
+        'Mimosa',
+        'Ixia',
+        'Azalea',
+        'Jasmine',
+        'Violet',
+        'Eglantine',
+        'Hyacinth',
+        'Heather',
+        'Geranium',
+        'Peony',
+        'Anemone',
+        'Ursinia',
+        'Linnea',
+        'Daffodil',
+        'Honeysuckle',
+        'Clover',
+        'Rose',
+        'Magnolia',
+        'Hortensia',
+        'Clematis',
+        'Primrose',
+        'Hibiscus',
+        'Pansy',
+        'Calanthe',
+        'Lavender',
+        'Orchid',
+        'Saffron',
+        'Celandine',
+        'Petunia',
+        'Heliotrope'
+    ]
+
     def __init__(self, week: int, season: Season):
         self.number = self.verified_week(week, season)
 
