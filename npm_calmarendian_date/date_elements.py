@@ -237,7 +237,7 @@ class Week(object):
         'Peony',
         'Anemone',
         'Ursinia',
-        'Linnea',
+        'Linnaea',
         'Daffodil',
         'Honeysuckle',
         'Clover',
