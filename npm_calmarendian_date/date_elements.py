@@ -254,7 +254,8 @@ class Week(object):
         'Saffron',
         'Celandine',
         'Petunia',
-        'Heliotrope'
+        'Heliotrope',
+        'Festival'
     ]
 
     def __init__(self, week: int, season: Season):
