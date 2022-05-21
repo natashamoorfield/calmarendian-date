@@ -241,5 +241,28 @@ class DayTest(unittest.TestCase):
             self.assertEqual(item["result"], d.number)
 
 
+class WeekNamesTest(unittest.TestCase):
+    def test_for_duplicates(self):
+        self.assertEqual(len(Week.WEEK_NAMES), len(set(Week.WEEK_NAMES)))
+
+    def test_raw_list_access(self):
+        # Don't forget the offset by one...
+        self.assertEqual('Saponaria', Week.WEEK_NAMES[0])
+        self.assertEqual('Zenobia', Week.WEEK_NAMES[5])
+        self.assertEqual('Daisy', Week.WEEK_NAMES[13])
+        self.assertEqual('Heliotrope', Week.WEEK_NAMES[49])
+        self.assertEqual('Festival', Week.WEEK_NAMES[50])
+
+    def test_access_method(self):
+        data = [
+            {"input": {"week": 1, "season": Season(1)}, "result": "Saponaria"},
+            {"input": {"week": 50, "season": Season(2)}, "result": "Heliotrope"},
+            {"input": {"week": 51, "season": Season(7)}, "result": "Festival"},
+        ]
+        for item in data:
+            w = Week(**item["input"])
+            self.assertEqual(item["result"], w.name())
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -409,5 +409,19 @@ class ColloquialDateTests(unittest.TestCase):
                 self.assertFalse(d is dx)
 
 
+class WeekNameTests(unittest.TestCase):
+    def test_week_names(self):
+        data = [
+            {"date": "774-7-14-7", "result": "Daisy"},
+            {"date": "775-5-50-1", "result": "Heliotrope"},
+            {"date": "776-7-51-4", "result": "Festival"},
+        ]
+        for item in data:
+            with self.subTest(i=item["date"]):
+                d = CalmarendianDate.from_date_string(item["date"])
+                self.assertEqual(item["result"], d.week.name())
+
+
+
 if __name__ == '__main__':
     unittest.main()

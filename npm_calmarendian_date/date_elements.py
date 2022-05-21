@@ -289,6 +289,12 @@ class Week(object):
         """
         return (self.number - 1) * 7
 
+    def name(self) -> str:
+        """
+        Return the name of the week.
+        """
+        return self.WEEK_NAMES[self.number - 1]
+
 
 class Day(object):
     DAY_NAMES: List[str] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
