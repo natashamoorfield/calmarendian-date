@@ -422,6 +422,5 @@ class WeekNameTests(unittest.TestCase):
                 self.assertEqual(item["result"], d.week.name())
 
 
-
 if __name__ == '__main__':
     unittest.main()

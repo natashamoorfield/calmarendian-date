@@ -9,11 +9,11 @@ There are, therefore, separate classes for each of these elements, and it is ins
 CalmarendianDate uses, rather than the raw integer values.
 """
 
-from typing import List
-
-from npm_calmarendian_date.exceptions import CalmarendianDateError
-from npm_calmarendian_date.c_date_config import CDateConfig
 from math import floor
+from typing import List, NamedTuple
+
+from npm_calmarendian_date.c_date_config import CDateConfig
+from npm_calmarendian_date.exceptions import CalmarendianDateError
 
 
 class GrandCycle(object):
@@ -203,6 +203,7 @@ class Week(object):
     Each week is named, although these names see very little day-to-day use.
 
     """
+    Weekend = NamedTuple('Weekend', [('descriptor', str), ('duration', float)])
 
     WEEK_NAMES: List[str] = [
         'Saponaria',
@@ -260,6 +261,8 @@ class Week(object):
 
     def __init__(self, week: int, season: Season):
         self.number = self.verified_week(week, season)
+        self.season = season
+        self.weekend = self.weekend_data()
 
     @staticmethod
     def verified_week(week: int, season: Season) -> int:
@@ -280,6 +283,23 @@ class Week(object):
             ])
             raise CalmarendianDateError(error_message)
         return week
+
+    def weekend_data(self) -> Weekend:
+        """
+        Return information about the week's weekend:
+        its type descriptor and duration.
+        """
+        if self.number == 51:
+            return self.Weekend("", 0.0)
+        if self.number == 50 and self.season.number == 7:
+            return self.Weekend("Festival", 3.5)
+        if self.number == 50:
+            return self.Weekend("Heliotrope", 3.5)
+        if self.number == 25:
+            return self.Weekend("Mid-Season", 3.5)
+        if self.number % 5 == 0:
+            return self.Weekend("Long", 3.0)
+        return self.Weekend("Short", 2.0)
 
     def days_prior(self) -> int:
         """

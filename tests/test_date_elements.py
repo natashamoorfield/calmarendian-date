@@ -264,5 +264,39 @@ class WeekNamesTest(unittest.TestCase):
             self.assertEqual(item["result"], w.name())
 
 
+class WeekendTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.data = [
+            {"input": {"week": 1, "season": Season(1)}, "result": ("Short", 2.0)},
+            {"input": {"week": 5, "season": Season(7)}, "result": ("Long", 3.0)},
+            {"input": {"week": 25, "season": Season(2)}, "result": ("Mid-Season", 3.5)},
+            {"input": {"week": 50, "season": Season(3)}, "result": ("Heliotrope", 3.5)},
+            {"input": {"week": 50, "season": Season(7)}, "result": ("Festival", 3.5)},
+            {"input": {"week": 51, "season": Season(7)}, "result": ("", 0.0)},
+        ]
+
+    def test_base_weekend_method(self):
+        for item in self.data:
+            w = Week(**item['input'])
+            week_ident = f'S{w.season.number} W{w.number}'
+            with self.subTest(i=week_ident):
+                self.assertEqual(item['result'], w.weekend)
+
+    def test_weekend_descriptor(self):
+        for item in self.data:
+            w = Week(**item['input'])
+            week_ident = f'S{w.season.number} W{w.number}'
+            with self.subTest(i=week_ident):
+                self.assertEqual(item['result'][0], w.weekend.descriptor)
+
+    def test_weekend_length(self):
+        for item in self.data:
+            w = Week(**item['input'])
+            week_ident = f'S{w.season.number} W{w.number}'
+            with self.subTest(i=week_ident):
+                self.assertEqual(item['result'][1], w.weekend.duration)
+
+
 if __name__ == '__main__':
     unittest.main()
