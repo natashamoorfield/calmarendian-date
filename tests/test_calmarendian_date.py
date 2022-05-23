@@ -422,5 +422,26 @@ class WeekNameTests(unittest.TestCase):
                 self.assertEqual(item["result"], d.week.name())
 
 
+class WeekendTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.data = [
+            {'date': '707-1-01-6', "results": ('Short', 2.0)},
+            {'date': '778-7-05-5', "results": ('Long', 3.0)},
+            {'date': '779-2-25-4', "results": ('Mid-Season', 3.5)},
+            {'date': '780-3-50-3', "results": ('Heliotrope', 3.5)},
+            {'date': '781-7-50-2', "results": ('Festival', 3.5)},
+            {'date': '784-7-51-1', "results": ('', 0.0)},
+        ]
+
+    def test_weekend_data(self):
+        for item in self.data:
+            d = CalmarendianDate.from_date_string(item['date'])
+            week_ident = f'S{d.week.season.number} W{d.week.number}'
+            with self.subTest(i=week_ident):
+                self.assertEqual(item['results'][0], d.week.weekend.descriptor)
+                self.assertEqual(item['results'][1], d.week.weekend.duration)
+
+
 if __name__ == '__main__':
     unittest.main()
