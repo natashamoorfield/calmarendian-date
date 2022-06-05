@@ -91,7 +91,7 @@ class BasicADRTests(unittest.TestCase):
             {"input": 1_718_111, "result": "02-001-1-02-3"},
             {"input": 1_905_361, "result": "02-077-3-04-5"},
             {"input": 1_906_784, "result": "02-077-7-07-7"},
-            {"input": CDateConfig.TEMP_BASELINE_ADR, "result": "02-078-1-01-1"},
+            {"input": CDateConfig.APOCALYPSE_EPOCH_ADR, "result": "02-077-7-02-7"},
             {"input": CDateConfig.MAX_ADR, "result": "99-700-7-51-8"},
         ]
         for item in items:
@@ -118,7 +118,7 @@ class BasicADRTests(unittest.TestCase):
             {"input": 1_718_111, "result": (701, EraMarker.CE)},
             {"input": 1_905_361, "result": (777, EraMarker.CE)},
             {"input": 1_906_784, "result": (777, EraMarker.CE)},
-            {"input": CDateConfig.TEMP_BASELINE_ADR, "result": (778, EraMarker.CE)},
+            {"input": CDateConfig.APOCALYPSE_EPOCH_ADR, "result": (777, EraMarker.CE)},
             {"input": 24_541_844, "result": (9999, EraMarker.CE)},
         ]
         for item in data:
@@ -135,7 +135,7 @@ class BasicADRTests(unittest.TestCase):
             {"input": 1_718_111, "result": 4901},
             {"input": 1_905_361, "result": 5435},
             {"input": 1_906_784, "result": 5439},
-            {"input": CDateConfig.TEMP_BASELINE_ADR, "result": 5440},
+            {"input": CDateConfig.APOCALYPSE_EPOCH_ADR, "result": 5439},
             {"input": CDateConfig.MAX_ADR, "result": 485_100},
         ]
         for item in data:
@@ -153,7 +153,7 @@ class BasicADRTests(unittest.TestCase):
             {"input": 1_718_111, "result": "701-1-02-3"},
             {"input": 1_905_361, "result": "777-3-04-5"},
             {"input": 1_906_784, "result": "777-7-07-7"},
-            {"input": CDateConfig.TEMP_BASELINE_ADR, "result": "778-1-01-1"},
+            {"input": CDateConfig.APOCALYPSE_EPOCH_ADR, "result": "777-7-02-7"},
             {"input": 24_541_844, "result": "9999-7-51-4"},
         ]
         for item in data:
@@ -236,7 +236,7 @@ class CreateFromFactoriesTests(unittest.TestCase):
             {"date_string": '02-001-1-02-3', "result": 1_718_111},
             {"date_string": '02-077-3-04-5', "result": 1_905_361},
             {"date_string": '02-077-7-07-7', "result": 1_906_784},
-            {"date_string": '02-078-1-01-1', "result": CDateConfig.TEMP_BASELINE_ADR},
+            {"date_string": '02-077-7-02-7', "result": CDateConfig.APOCALYPSE_EPOCH_ADR},
             {"date_string": '15-199-7-51-4', "result": 24_541_844},
             {"date_string": '99-700-7-51-8', "result": CDateConfig.MAX_ADR},
         ]
@@ -254,7 +254,7 @@ class CreateFromFactoriesTests(unittest.TestCase):
             {"date_string": '701-1-02-3', "result": 1_718_111},
             {"date_string": '777-3-04-5', "result": 1_905_361},
             {"date_string": '777-7-07-7', "result": 1_906_784},
-            {"date_string": '778-1-01-1', "result": CDateConfig.TEMP_BASELINE_ADR},
+            {"date_string": '777-7-02-7', "result": CDateConfig.APOCALYPSE_EPOCH_ADR},
             {"date_string": '9999-7-51-4', "result": 24_541_844},
         ]
         for item in data:
@@ -396,7 +396,7 @@ class ColloquialDateTests(unittest.TestCase):
             {"input": 1_718_111, "result": "701-1-02-3"},
             {"input": 1_905_361, "result": "777-3-04-5"},
             {"input": 1_906_784, "result": "777-7-07-7"},
-            {"input": CDateConfig.TEMP_BASELINE_ADR, "result": "778-1-01-1"},
+            {"input": CDateConfig.APOCALYPSE_EPOCH_ADR, "result": "777-7-02-7"},
             {"input": 24_541_844, "result": "9999-7-51-4"},
         ]
         for item in data:
