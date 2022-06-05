@@ -20,9 +20,9 @@ class CDateConfig(object):
     GCN_DATE_STRING_RE = re.compile(r'^(\d{2})-([0-7]\d{2})-([1-7])-([0-5]\d)-([1-8])$')
     CSN_DATE_STRING_RE = re.compile(r'^([1-9]?\d{3})-([1-7])-([0-5]\d)-([1-8]) *(BZ|BH|CE)?$', re.IGNORECASE)
 
-    # Epoch for Apocalypse Reckoning
     TEMP_BASELINE_ADR: int = 1_907_093  # New Cycle Day 778
-    APOCALYPSE_EPOCH_ADR: int = TEMP_BASELINE_ADR
-    # TODO: Determine the correct epoch day for Apocalypse Reckoning:
-    #  the day Jennifer and Colette arrived on Calmarendi.
-    #  https://github.com/natashamoorfield/npm_calmarendian_date/issues/4
+
+    # Epoch for Apocalypse Reckoning (Day Zero (AR 0)) is 777-7-02-7.
+    # Note that Day One of the Apocalypse (AR 1),
+    # the day on which Jennifer and Colette actually arrived, is 777-7-03-1
+    APOCALYPSE_EPOCH_ADR: int = 1_906_749
