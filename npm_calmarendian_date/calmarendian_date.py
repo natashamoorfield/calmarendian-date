@@ -51,6 +51,23 @@ class CalmarendianDate(object):
 
         self._absolute_day_reference = new_value
 
+    @property
+    def apocalypse_reckoning(self) -> int:
+        """
+        Return the day number relative to the Apocalypse epoch.
+        """
+        # TODO apocalypse_reckoning getter
+        return 0
+
+    @apocalypse_reckoning.setter
+    def apocalypse_reckoning(self, new_value):
+        """
+        Set a new value for the absolute day reference based upon a day number in Apocalypse Reckoning.
+        :param new_value: An integer apocalypse reckoning day number which should map to a valid CalmarendianDate.
+        """
+        # TODO apocalypse_reckoning setter
+        pass
+
     @classmethod
     def from_objects(
             cls,
@@ -113,6 +130,32 @@ class CalmarendianDate(object):
         """
         s = DateString(date_string)
         return cls.from_numbers(*s.elements())
+
+    @classmethod
+    def from_apocalypse_reckoning(cls, day: int):
+        """
+        Return a CalmarendianDate object based upon the Apocalypse Reckoning day number.
+        By definition Day One of the Apocalypse Reckoning is 777-7-03-1 (ADR 1_906_750)
+        :param day: Day number relative to the Apocalypse epoch (777-7-02-7 (ADR 1_906_749)).
+        :return: A CalmarendianDate object
+        """
+        # TODO The from apocalypse_reckoning constructor
+        pass
+
+    @classmethod
+    def today(cls):
+        """
+        Return a CalmarendianDate object for 777-7-03-1, Day One of the Apocalypse.
+        There is no real meaning to the term 'today' as a reference to a Calmarendian date from the perspective of an
+        observer on Earth. The method name has been chosen (a) to mirror the method of the same name in
+        Python's Gregorian date class and (b) because, from our world-building perspective, everything that happened
+        before Jennifer's arrival is in the past, everything that happened afterwards is deemed the future implying that
+        777-7-03-1 must be 'today'. However, unlike the standard Python date.today() method, this one will always
+        return the same value whenever it is invoked.
+        :return: A CalmarendianDate object.
+        """
+        # TODO The today() constructor
+        pass
 
     @staticmethod
     def cycle_decode(days: int) -> int:
