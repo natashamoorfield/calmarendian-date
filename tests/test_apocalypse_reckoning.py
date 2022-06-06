@@ -2,7 +2,7 @@ import unittest
 
 from npm_calmarendian_date import CalmarendianDate
 from npm_calmarendian_date.c_date_config import CDateConfig
-from npm_calmarendian_date.exceptions import CalmarendianDateError
+from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateDomainError
 
 
 class ARTest(unittest.TestCase):
@@ -34,8 +34,10 @@ class ARTest(unittest.TestCase):
                 self.assertEqual(item['csn'], d.csn())
 
     def test_ar_constructor_with_duff_data(self):
-        self.assertRaises(CalmarendianDateError, CalmarendianDate.from_apocalypse_reckoning, -3_624_850)
-        self.assertRaises(CalmarendianDateError, CalmarendianDate.from_apocalypse_reckoning, 168_185_251)
+        self.assertRaises(CalmarendianDateDomainError, CalmarendianDate.from_apocalypse_reckoning, -3_624_850)
+        self.assertRaises(CalmarendianDateDomainError, CalmarendianDate.from_apocalypse_reckoning, 168_185_251)
+        self.assertRaises(CalmarendianDateError, CalmarendianDate.from_apocalypse_reckoning, 'duff data')
+        self.assertRaises(CalmarendianDateError, CalmarendianDate.from_apocalypse_reckoning, {})
 
     def test_ar_getter(self):
         for item in self.data:

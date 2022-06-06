@@ -5,7 +5,7 @@ from typing import Tuple, Optional
 
 from npm_calmarendian_date.c_date_config import CDateConfig
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
-from npm_calmarendian_date.exceptions import CalmarendianDateError
+from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateDomainError
 from npm_calmarendian_date.string_conversions import DateString
 
 
@@ -40,14 +40,9 @@ class CalmarendianDate(object):
         :param new_value: Raise an error on any value that cannot be converted to an integer and
         for any value outside the valid date range.
         """
-        try:
-            new_value = int(new_value)
-        except ValueError:
-            raise CalmarendianDateError(f"ADR: Cannot convert [{new_value}] to an integer value.")
-        except TypeError:
-            raise CalmarendianDateError(f"ADR: {new_value.__class__} cannot be converted to an integer value.")
+        new_value = self.sanitized_integer(new_value, "ADR")
         if new_value < CDateConfig.MIN_ADR or new_value > CDateConfig.MAX_ADR:
-            raise CalmarendianDateError(f"ADR: {new_value} is out of range.")
+            raise CalmarendianDateDomainError(f"ADR: {new_value} is out of range.")
 
         self._absolute_day_reference = new_value
 
@@ -132,15 +127,18 @@ class CalmarendianDate(object):
         return cls.from_numbers(*s.elements())
 
     @classmethod
-    def from_apocalypse_reckoning(cls, day: int):
+    def from_apocalypse_reckoning(cls, apocalypse_day: int):
         """
         Return a CalmarendianDate object based upon the Apocalypse Reckoning day number.
         By definition Day One of the Apocalypse Reckoning is 777-7-03-1 (ADR 1_906_750)
-        :param day: Day number relative to the Apocalypse epoch (777-7-02-7 (ADR 1_906_749)).
+        :param apocalypse_day: Day number relative to the Apocalypse epoch (777-7-02-7 (ADR 1_906_749)).
         :return: A CalmarendianDate object
         """
-        # TODO The from apocalypse_reckoning constructor
-        pass
+        apocalypse_day = cls.sanitized_integer(apocalypse_day, "AR")
+        try:
+            return cls(apocalypse_day + CDateConfig.APOCALYPSE_EPOCH_ADR)
+        except CalmarendianDateDomainError:
+            raise CalmarendianDateDomainError(f"AR: {apocalypse_day} is out of range.")
 
     @classmethod
     def today(cls):
@@ -156,6 +154,17 @@ class CalmarendianDate(object):
         """
         # TODO The today() constructor
         pass
+
+    @staticmethod
+    def sanitized_integer(value: int, desc: str) -> int:
+        try:
+            value = int(value)
+        except ValueError:
+            raise CalmarendianDateError(f"{desc}: Cannot convert [{value}] to an integer value.")
+        except TypeError:
+            raise CalmarendianDateError(f"{desc}: {value.__class__} cannot be converted to an integer value.")
+
+        return value
 
     @staticmethod
     def cycle_decode(days: int) -> int:
