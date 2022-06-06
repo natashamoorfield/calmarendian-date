@@ -51,8 +51,7 @@ class CalmarendianDate(object):
         """
         Return the day number relative to the Apocalypse epoch.
         """
-        # TODO apocalypse_reckoning getter
-        return 0
+        return self._absolute_day_reference - CDateConfig.APOCALYPSE_EPOCH_ADR
 
     @apocalypse_reckoning.setter
     def apocalypse_reckoning(self, new_value):
