@@ -15,6 +15,11 @@ class EraMarker(Enum):
     CE = "Current Era"
 
 
+class DayRefDescriptor(Enum):
+    ADR = "Absolute Day Reference"
+    ARR = "Apocalypse Reckoning Reference"
+
+
 @total_ordering
 class CalmarendianDate(object):
     """
@@ -22,9 +27,9 @@ class CalmarendianDate(object):
     Calendar. In particular, CalmarendianDate naively assumes that its calendar always was
     (and always will be) in effect even though it demonstrably was not.
     """
+
     def __init__(self, new_adr: int):
         self.adr = new_adr
-        self.grand_cycle, self.cycle, self.season, self.week, self.day = self.elements_from_adr()
 
     @property
     def adr(self) -> int:
@@ -37,14 +42,11 @@ class CalmarendianDate(object):
     def adr(self, new_value: int):
         """
         Set a new value for the date objects absolute_day_reference (adr).
-        :param new_value: Raise an error on any value that cannot be converted to an integer and
-        for any value outside the valid date range.
+        :param new_value: The sanitized_integer method will raise an error on any value that cannot be
+        converted to an integer and for any value outside the valid date range.
         """
-        new_value = self.sanitized_integer(new_value, "ADR")
-        if new_value < CDateConfig.MIN_ADR or new_value > CDateConfig.MAX_ADR:
-            raise CalmarendianDateDomainError(f"ADR: {new_value} is out of range.")
-
-        self._absolute_day_reference = new_value
+        self._absolute_day_reference = self.sanitized_integer(new_value, DayRefDescriptor.ADR)
+        self.grand_cycle, self.cycle, self.season, self.week, self.day = self.elements_from_adr()
 
     @property
     def apocalypse_reckoning(self) -> int:
@@ -81,17 +83,12 @@ class CalmarendianDate(object):
         :return: A CalmarendianDate object.
         """
         date = cls.__new__(cls)
-        date.grand_cycle = grand_cycle
-        date.cycle = cycle
-        date.season = season
-        date.week = week
-        date.day = day
         date.adr = sum([
-            date.grand_cycle.days_prior(),
-            date.cycle.days_prior(),
-            date.season.days_prior(),
-            date.week.days_prior(),
-            date.day.number
+            grand_cycle.days_prior(),
+            cycle.days_prior(),
+            season.days_prior(),
+            week.days_prior(),
+            day.number
         ])
         return date
 
@@ -131,13 +128,13 @@ class CalmarendianDate(object):
         Return a CalmarendianDate object based upon the Apocalypse Reckoning day number.
         By definition Day One of the Apocalypse Reckoning is 777-7-03-1 (ADR 1_906_750)
         :param apocalypse_day: Day number relative to the Apocalypse epoch (777-7-02-7 (ADR 1_906_749)).
+
+        The sanitized_integer method will raise an error on any value that cannot be
+        converted to an integer and for any value outside the valid date range.
+
         :return: A CalmarendianDate object
         """
-        apocalypse_day = cls.sanitized_integer(apocalypse_day, "AR")
-        try:
-            return cls(apocalypse_day + CDateConfig.APOCALYPSE_EPOCH_ADR)
-        except CalmarendianDateDomainError:
-            raise CalmarendianDateDomainError(f"AR: {apocalypse_day} is out of range.")
+        return cls(cls.sanitized_integer(apocalypse_day, DayRefDescriptor.ARR) + CDateConfig.APOCALYPSE_EPOCH_ADR)
 
     @classmethod
     def today(cls):
@@ -155,7 +152,7 @@ class CalmarendianDate(object):
         pass
 
     @staticmethod
-    def sanitized_integer(value: int, desc: str) -> int:
+    def sanitized_integer(value: int, desc: DayRefDescriptor) -> int:
         try:
             value = int(value)
         except ValueError:
@@ -163,7 +160,13 @@ class CalmarendianDate(object):
         except TypeError:
             raise CalmarendianDateError(f"{desc}: {value.__class__} cannot be converted to an integer value.")
 
-        return value
+        if desc == DayRefDescriptor.ADR and (CDateConfig.MIN_ADR <= value <= CDateConfig.MAX_ADR):
+            return value
+        if desc == DayRefDescriptor.ARR and (
+                CDateConfig.MIN_ADR <= value + CDateConfig.APOCALYPSE_EPOCH_ADR <= CDateConfig.MAX_ADR):
+            return value
+
+        raise CalmarendianDateDomainError(f"{desc.name}: {value} is out of range.")
 
     @staticmethod
     def cycle_decode(days: int) -> int:

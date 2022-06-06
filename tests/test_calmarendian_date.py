@@ -30,8 +30,10 @@ class BasicADRTests(unittest.TestCase):
     def test_simple_adr_set(self):
         d = CalmarendianDate(1_234_567)
         self.assertEqual(1_234_567, d.adr)
+        self.assertEqual('Wednesday, Week 50 of Onset 503', d.colloquial_date())
         d.adr = 1_234_568
         self.assertEqual(1_234_568, d.adr)
+        self.assertEqual('Thursday, Week 50 of Onset 503', d.colloquial_date())
 
     def test_cycle_decode(self):
         items = [
