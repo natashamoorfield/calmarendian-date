@@ -56,10 +56,10 @@ class ARTest(unittest.TestCase):
     def test_ar_setter_with_duff_data(self):
         with self.assertRaises(CalmarendianDateError):
             d = CalmarendianDate.from_date_string('777-7-07-7')
-            d.apocalypse_reckoning(-3_624_850)
+            d.apocalypse_reckoning = -3_624_850
         with self.assertRaises(CalmarendianDateError):
             d = CalmarendianDate.from_date_string('777-7-07-7')
-            d.apocalypse_reckoning(168_185_251)
+            d.apocalypse_reckoning = 168_185_251
 
     def test_today(self):
         d: CalmarendianDate = CalmarendianDate.today()

@@ -45,7 +45,7 @@ class CalmarendianDate(object):
         :param new_value: The sanitized_integer method will raise an error on any value that cannot be
         converted to an integer and for any value outside the valid date range.
         """
-        self._absolute_day_reference = self.sanitized_integer(new_value, DayRefDescriptor.ADR)
+        self._absolute_day_reference = self.sanitized_adr(new_value, DayRefDescriptor.ADR)
         self.grand_cycle, self.cycle, self.season, self.week, self.day = self.elements_from_adr()
 
     @property
@@ -56,13 +56,13 @@ class CalmarendianDate(object):
         return self._absolute_day_reference - CDateConfig.APOCALYPSE_EPOCH_ADR
 
     @apocalypse_reckoning.setter
-    def apocalypse_reckoning(self, new_value):
+    def apocalypse_reckoning(self, new_value: int):
         """
         Set a new value for the absolute day reference based upon a day number in Apocalypse Reckoning.
         :param new_value: An integer apocalypse reckoning day number which should map to a valid CalmarendianDate.
         """
         # TODO apocalypse_reckoning setter
-        pass
+        self.adr = self.sanitized_adr(new_value, DayRefDescriptor.ARR)
 
     @classmethod
     def from_objects(
@@ -134,7 +134,7 @@ class CalmarendianDate(object):
 
         :return: A CalmarendianDate object
         """
-        return cls(cls.sanitized_integer(apocalypse_day, DayRefDescriptor.ARR) + CDateConfig.APOCALYPSE_EPOCH_ADR)
+        return cls(cls.sanitized_adr(apocalypse_day, DayRefDescriptor.ARR))
 
     @classmethod
     def today(cls):
@@ -152,7 +152,14 @@ class CalmarendianDate(object):
         pass
 
     @staticmethod
-    def sanitized_integer(value: int, desc: DayRefDescriptor) -> int:
+    def sanitized_adr(value: int, desc: DayRefDescriptor) -> int:
+        """
+        Return an in-range absolute day reference, mapping any non-ADR references to the ADR scale,
+        or raise an error if the input cannot be converted to an integer or
+        if it maps to a date outside the range of valid absolute day references.
+        :param value: A day reference.
+        :param desc: Indicate if the input is an absolute day reference (ADR) or apocalypse reckoning reference (ARR).
+        """
         try:
             value = int(value)
         except ValueError:
@@ -160,10 +167,9 @@ class CalmarendianDate(object):
         except TypeError:
             raise CalmarendianDateError(f"{desc}: {value.__class__} cannot be converted to an integer value.")
 
-        if desc == DayRefDescriptor.ADR and (CDateConfig.MIN_ADR <= value <= CDateConfig.MAX_ADR):
-            return value
-        if desc == DayRefDescriptor.ARR and (
-                CDateConfig.MIN_ADR <= value + CDateConfig.APOCALYPSE_EPOCH_ADR <= CDateConfig.MAX_ADR):
+        if desc == DayRefDescriptor.ARR:
+            value += CDateConfig.APOCALYPSE_EPOCH_ADR
+        if CDateConfig.MIN_ADR <= value <= CDateConfig.MAX_ADR:
             return value
 
         raise CalmarendianDateDomainError(f"{desc.name}: {value} is out of range.")
