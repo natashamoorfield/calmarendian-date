@@ -61,7 +61,6 @@ class CalmarendianDate(object):
         Set a new value for the absolute day reference based upon a day number in Apocalypse Reckoning.
         :param new_value: An integer apocalypse reckoning day number which should map to a valid CalmarendianDate.
         """
-        # TODO apocalypse_reckoning setter
         self.adr = self.sanitized_adr(new_value, DayRefDescriptor.ARR)
 
     @classmethod
@@ -149,7 +148,7 @@ class CalmarendianDate(object):
         :return: A CalmarendianDate object.
         """
         # TODO The today() constructor
-        pass
+        return cls.from_apocalypse_reckoning(1)
 
     @staticmethod
     def sanitized_adr(value: int, desc: DayRefDescriptor) -> int:
