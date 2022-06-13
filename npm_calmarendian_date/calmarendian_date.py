@@ -115,7 +115,7 @@ class CalmarendianDate(object):
         """
         For a given date string in Grand Cycle Notation or Common Symbolic Notation, return the corresponding
         CalmarendianDate object.
-        :param date_string: A date string in Grand Cycle Notation format.
+        :param date_string: A date string in either Grand Cycle Notation or Common Symbolic Notation format.
         :return: A CalmarendianDate object
         """
         s = DateString(date_string)
@@ -147,7 +147,6 @@ class CalmarendianDate(object):
         return the same value whenever it is invoked.
         :return: A CalmarendianDate object.
         """
-        # TODO The today() constructor
         return cls.from_apocalypse_reckoning(1)
 
     @staticmethod
