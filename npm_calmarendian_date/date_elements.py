@@ -145,7 +145,7 @@ class Season(object):
     """
 
     SEASON_NAMES: List[str] = [
-        "Winter", "Thaw", "Spring", "Perihelion", "High Summer", "Autumn", "Onset"
+        "Midwinter", "Thaw", "Spring", "Perihelion", "High Summer", "Autumn", "Onset"
     ]
 
     def __init__(self, season: int):

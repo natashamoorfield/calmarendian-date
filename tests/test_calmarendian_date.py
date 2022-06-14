@@ -311,7 +311,7 @@ class ColloquialDateTests(unittest.TestCase):
 
     def test_month_names(self):
         data = [
-            (1, "Winter"),
+            (1, "Midwinter"),
             (2, "Thaw"),
             (3, "Spring"),
             (4, "Perihelion"),
@@ -321,7 +321,8 @@ class ColloquialDateTests(unittest.TestCase):
         ]
         for i in data:
             s = Season(i[0])
-            self.assertEqual(i[1], s.name())
+            with self.subTest(i=i):
+                self.assertEqual(i[1], s.name())
 
     def test_colloquial_standard(self):
         d = CalmarendianDate(-1_230_683)
@@ -333,9 +334,9 @@ class ColloquialDateTests(unittest.TestCase):
         self.assertEqual("Saturday, Week 5 of Perihelion 222 BH", d.colloquial_date(era_marker="BH"))
         self.assertEqual("Saturday, Week 5 of Perihelion 222 BH", d.colloquial_date(era_marker="CE"))
         d = CalmarendianDate(1_907_242)
-        self.assertEqual("Wednesday, Week 22 of Winter 778", d.colloquial_date())
-        self.assertEqual("Wednesday, Week 22 of Winter 778", d.colloquial_date(era_marker="BH"))
-        self.assertEqual("Wednesday, Week 22 of Winter 778 CE", d.colloquial_date(era_marker="CE"))
+        self.assertEqual("Wednesday, Week 22 of Midwinter 778", d.colloquial_date())
+        self.assertEqual("Wednesday, Week 22 of Midwinter 778", d.colloquial_date(era_marker="BH"))
+        self.assertEqual("Wednesday, Week 22 of Midwinter 778 CE", d.colloquial_date(era_marker="CE"))
 
     def test_colloquial_festival(self):
         d = CalmarendianDate(-171_812)
@@ -360,11 +361,11 @@ class ColloquialDateTests(unittest.TestCase):
         self.assertEqual("Monday of Week 23 of Perihelion 635 Before Time Zero",
                          d.colloquial_date(era_marker="CE", verbose=True))
         d = CalmarendianDate(3)
-        self.assertEqual("Wednesday of Week 1 of Winter 1",
+        self.assertEqual("Wednesday of Week 1 of Midwinter 1",
                          d.colloquial_date(verbose=True))
-        self.assertEqual("Wednesday of Week 1 of Winter 1 Before History",
+        self.assertEqual("Wednesday of Week 1 of Midwinter 1 Before History",
                          d.colloquial_date(era_marker="BH", verbose=True))
-        self.assertEqual("Wednesday of Week 1 of Winter 1 Before History",
+        self.assertEqual("Wednesday of Week 1 of Midwinter 1 Before History",
                          d.colloquial_date(era_marker="CE", verbose=True))
         d = CalmarendianDate(1_484_537)
         self.assertEqual("Friday of Week 45 of Autumn 605",
