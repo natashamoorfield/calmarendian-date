@@ -209,16 +209,33 @@ class DayTest(unittest.TestCase):
             Day(day=9, week=Week(51, Season(7)), cycle=CycleInGrandCycle(700))
 
     def test_error_messages(self):
-        with self.assertRaisesRegex(CalmarendianDateError, "DAY: 0.*week 12.*1 and 7"):
-            Day(day=0, week=Week(12, Season(4)), cycle=CycleInGrandCycle(100))
-        with self.assertRaisesRegex(CalmarendianDateError, "DAY: 8.*week 14.*1 and 7"):
-            Day(day=8, week=Week(14, Season(5)), cycle=CycleInGrandCycle(108))
-        with self.assertRaisesRegex(CalmarendianDateError, "DAY: 5.*Festival 177.*1 and 4"):
-            Day(day=5, week=Week(51, Season(7)), cycle=CycleInGrandCycle(177))
-        with self.assertRaisesRegex(CalmarendianDateError, "DAY: 8.*Festival 175.*1 and 7"):
-            Day(day=8, week=Week(51, Season(7)), cycle=CycleInGrandCycle(175))
-        with self.assertRaisesRegex(CalmarendianDateError, "DAY: 9.*Festival 700.*1 and 8"):
-            Day(day=9, week=Week(51, Season(7)), cycle=CycleInGrandCycle(700))
+        data = [
+            (
+                "DAY must be in [1 .. 7] for specified week; not 0",
+                0, 12, 4, 100
+            ),
+            (
+                "DAY must be in [1 .. 7] for specified week; not 8",
+                8, 14, 5, 108
+            ),
+            (
+                "DAY must be in [1 .. 4] for specified week; not 5",
+                5, 51, 7, 177
+            ),
+            (
+                "DAY must be in [1 .. 7] for specified week; not 8",
+                8, 51, 7, 175
+            ),
+            (
+                "DAY must be in [1 .. 8] for specified week; not 9",
+                9, 51, 7, 700
+            ),
+        ]
+        for i in data:
+            with self.subTest(i=i[1:]):
+                with self.assertRaises(CalmarendianDateError) as cm:
+                    Day(day=i[1], week=Week(i[2], Season(i[3])), cycle=CycleInGrandCycle(i[4]))
+                self.assertEqual(i[0], cm.exception.__str__())
 
     def test_good_days_standard(self):
         data = [

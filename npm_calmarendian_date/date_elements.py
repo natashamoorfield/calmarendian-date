@@ -338,14 +338,10 @@ class Day(object):
         :return: A valid day number.
         """
         max_days = cycle.festival_days() if week.number == 51 else 7
-        if day <= 0 or day > max_days:
-            w = f'Festival {cycle.number}' if week.number == 51 else f'week {week.number}'
-            error_message = " ".join([
-                f"DAY: {day} is invalid for {w}.",
-                f"Must be between 1 and {max_days} inclusive."
-            ])
-            raise CalmarendianDateError(error_message)
-        return day
+        if 0 < day <= max_days:
+            return day
+        error_message = f"DAY must be in [1 .. {max_days}] for specified week; not {day}"
+        raise CalmarendianDateError(error_message)
 
     def name(self) -> str:
         """
