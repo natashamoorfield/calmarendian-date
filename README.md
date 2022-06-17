@@ -19,6 +19,11 @@ Package Index (PyPI)](https://pypi.org/project/npm_calmarendian_date).
 pip install npm-calmarendian-date
 ```
 
+Do not install any versions prior to 0.3.0; they are broken. If you already have an earlier version installed, upgrade using:
+```bash
+pip install --upgrade npm-calmarendian-date
+```
+
 ## Usage
 This simple example:
 ```python
