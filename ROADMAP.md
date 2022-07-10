@@ -5,11 +5,11 @@
 ## Constants
 `CDateConfig.MIN_ADR`
 
-A number, `-1_718_100`, the ordinal value of the earliest date that can be represented by a `CalmarendianDate` object (699-1-01-1 BZ).
+A number, `-1_718_100`, which is the ordinal value of the earliest date that can be represented by a `CalmarendianDate` object (699-1-01-1 BZ).
 
 `CDateConfig.MAX_ADR`
 
-A number, `170_091_999` the ordinal value of the last date that can be represented by a `CalmarendianDate` object (69300-7-51-8).
+A number, `170_091_999`, which is the ordinal value of the last date that can be represented by a `CalmarendianDate` object (69300-7-51-8).
 
 ## `CalmarendianDate` Objects
 
@@ -21,14 +21,17 @@ Day Zero is the day before Day 1 and is the last day of Cycle Zero.
 
 ## Default Constructor
 ```
-class npm_calmarendian_date.CalmarendianDate(new_adr: int)
+class npm_calmarendian_date.CalmarendianDate(
+    ordinal: int,
+    day_ref_descriptor: DayRefDescriptor
+)
 ```
 
-The default constructor takes, as its single, required argument, an integer representing the *Absolute Day Reference* (ADR) of the date, that being the number of days after Day Zero (or before Day Zero for negative values) that the date lies.
+The default constructor takes, as its required argument, an integer representing the *Absolute Day Reference* (ADR) or the *Apocalypse Reckoning Reference (ARR)* of the date, that being the number of days after Day Zero (or before Day Zero for negative values) or the number of after (or before) the Apocalypse Epoch that the date lies.
 
-It is an exact equivalent of `classmethod date.fromordinal(adr_ordinal)`
+It is equivalent to `classmethod date.fromordinal(ordinal, desc)`
 
-Although the calendar is conceptually infinite in both directions, for reasons explained [elsewhere](https://www.worldanvil.com/w/calmarendi-natasha-moorfield/a/collating-calmarendian-dates-article), there are practical limits imposed by the notation used and these limits are respected by  the `CalmarendianDate` class which constrains the `new-adr` argument thus:
+Although the calendar is conceptually infinite in both directions, for reasons explained [elsewhere](https://www.worldanvil.com/w/calmarendi-natasha-moorfield/a/collating-calmarendian-dates-article), there are practical limits imposed by the notation used and these limits are respected by  the `CalmarendianDate` class which constrains the `adr_orninal` argument thus:
 
 `CDateConfig.MIN_ADR <= adr_ordinal <= CDateConfig.MAX_ADR`
 
@@ -70,9 +73,11 @@ classmethod CalmarendianDate.from_day_in_season(
 ```
 Day-in-Season notation (DSN) is a notation which merges the day-in-week and week-in-season values into a single day-in-season value so that, for example, Tuesday, Week 2 of Onset 777 becomes 9 Onset 777. This is to mirror the notation used in the WA Chronology feature rather than being an alternative notation used by Calmarendians themselves.
 
+*Note that while the World Anvil Chronicle feature can replicate the three leap days of every seventh festival, it (currently) has no way of adding the eighth Festival (leap) day that is added to every 700th cycle. This will cause a discrepancy between most dates in the WA Chronicles and a properly implemented DSN here. It will be one day during our period of interest (Grand Cycle 2) and can be compensated for.  It does mean that nothing could ever happen on Festival 8, but why would it? Everyone will be blind drunk after the previous seven straight days of partying!*
+
 Whilst not an exact like-for-like, this should be treated as the CalmarendianDate equivalent of the Gregorian `date.fromisocalendar` method.
 
-It shall have in inverse method: `CalmarendianDate.day_in_deason`.
+It shall have an inverse method: `CalmarendianDate.day_in_season`.
 
 ```
 classmethod CalmarendianDate.min_date()
@@ -123,14 +128,16 @@ CalmarendianDate.replace(
     season: int = self.season.number,
     week: int = self.week.number,
     day: int = self.day.number
-)
+) -> CalmarendianDate
 ```
 Return a date with the same value, except for those parameters given new values by whichever keyword arguments are specified.
+
+Although CalmarendianDate objects are not strictly immutable, this method does not change the current instance, it returns a fresh object with the new value.
 
 ```
 CalmarendianDate.timetuple()
 ```
-Return an object containing all the elements needed to completely define a Calmarendian date-time object.
+Return an object containing all the elements needed to completely define a Calmarendian date-time object. The exact structure of this timetuple is currently _undefined_.
 
 ```
 CalmarendianDate.toordinal(day_ref_descriptor: DayRefDescriptor)
