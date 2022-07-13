@@ -1,4 +1,7 @@
+import math
 from typing import Union
+
+from npm_calmarendian_date.exceptions import CalmarendianDateError
 
 
 class CalmarendianTimeDelta(object):
@@ -44,4 +47,28 @@ class CalmarendianTimeDelta(object):
         represented as (days = -1, seconds = 65535, microseconds = 999999) which could be thought of as one day back,
         65,535.999999 seconds forward.
         """
+        try:
+            seconds += ((hours * 64) + minutes) * 64
+        except TypeError:
+            raise CalmarendianDateError("Timedelta hours, minutes and seconds must be of type 'int' or 'float'.")
+        try:
+            microseconds += milliseconds * 1000
+        except TypeError:
+            raise CalmarendianDateError("Timedelta milliseconds and microseconds must be of type 'int' or 'float'.")
+
+        if isinstance(days, float):
+            fractional_days, whole_days = math.modf(days)
+            fractional_seconds_cf, whole_seconds = math.modf(fractional_days * 16 * 4096)
+            whole_days = int(whole_days)
+            whole_seconds_cf = int(whole_seconds)
+        elif isinstance(days, int):
+            fractional_seconds_cf = 0.0
+            whole_seconds_cf = 0
+            whole_days = days
+        else:
+            raise CalmarendianDateError(f"Timedelta days must be a real number, not {days}.")
+
+        self.days = whole_days
+        self.seconds = whole_seconds_cf
+        self.microseconds = int(fractional_seconds_cf)
 
