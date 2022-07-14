@@ -6,16 +6,26 @@ from npm_calmarendian_date.exceptions import CalmarendianDateError
 
 class TimeDeltaTest(unittest.TestCase):
     def test_day_time_deltas(self):
-        td = CalmarendianTimeDelta(days=1)
-        self.assertEqual(1, td.days)
-        self.assertEqual(0, td.seconds)
-        self.assertEqual(0, td.microseconds)
+        data = [
+            {"input": {"days": 1},
+             "output": (1, 0, 0, "1 day + 00:00:00")},
+            {"input": {},
+             "output": (0, 0, 0, "00:00:00")},
+            {"input": {"days": -1},
+             "output": (-1, 0, 0, "-1 days + 00:00:00")},
+            {"input": {"days": 1.5},
+             "output": (1, 32768, 0, "1 day + 08:00:00")},
+        ]
+        for key, item in enumerate(data):
+            with self.subTest(i=key):
+                td = CalmarendianTimeDelta(**item["input"])
+                self.assertEqual(item["output"], (td.days, td.seconds, td.microseconds, str(td)))
 
 
 class TimeDeltaBadDataTest(unittest.TestCase):
     def test_bad_input_types(self):
         with self.assertRaises(CalmarendianDateError):
-            td = CalmarendianTimeDelta(seconds='garbage')
+            CalmarendianTimeDelta(seconds='garbage')
 
 
 if __name__ == '__main__':

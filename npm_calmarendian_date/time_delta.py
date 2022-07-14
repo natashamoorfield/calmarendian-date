@@ -12,6 +12,8 @@ class CalmarendianTimeDelta(object):
     """
     RealNumber = Union[int, float]
 
+    __slots__ = ('_days', '_seconds', '_microseconds')
+
     def __init__(
             self,
             *,
@@ -72,3 +74,39 @@ class CalmarendianTimeDelta(object):
         self.seconds = whole_seconds_cf
         self.microseconds = int(fractional_seconds_cf)
 
+    @property
+    def days(self):
+        return self._days
+
+    @days.setter
+    def days(self, new_value: int):
+        if not isinstance(new_value, int):
+            raise CalmarendianDateError(f"TIMEDELTA: internally, days must be of type 'int' not {type(new_value)}")
+        self._days = new_value
+
+    @property
+    def seconds(self):
+        return self._seconds
+
+    @seconds.setter
+    def seconds(self, new_value: int):
+        self._seconds = new_value
+
+    @property
+    def microseconds(self):
+        return self._microseconds
+
+    @microseconds.setter
+    def microseconds(self, new_value: int):
+        self._microseconds = new_value
+
+    def __str__(self):
+        mm, ss = divmod(self._seconds, 64)
+        hh, mm = divmod(mm, 64)
+        out_string = f"{hh:02}:{mm:02}:{ss:02}"
+        if self._microseconds:
+            out_string = f"{out_string}.{self._microseconds:06}"
+        if self._days:
+            s = "" if self._days == 1 else "s"
+            out_string = f"{self._days} day{s} + {out_string}"
+        return out_string
