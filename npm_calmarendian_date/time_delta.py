@@ -48,27 +48,31 @@ class CalmarendianTimeDelta(object):
         with a duration of -1 microseconds, for example, being
         represented as (days = -1, seconds = 65535, microseconds = 999999) which could be thought of as one day back,
         65,535.999999 seconds forward.
+
+        Don't forget, there are 16 hours in a day, 64 minutes in an hour and 64 seconds in a minute.
         """
-        try:
-            seconds += ((hours * 64) + minutes) * 64
-        except TypeError:
-            raise CalmarendianDateError("Timedelta hours, minutes and seconds must be of type 'int' or 'float'.")
-        try:
-            microseconds += milliseconds * 1000
-        except TypeError:
-            raise CalmarendianDateError("Timedelta milliseconds and microseconds must be of type 'int' or 'float'.")
+        # Type check all the arguments
+        args = locals()
+        for arg, value in args.items():
+            if arg != "self" and not isinstance(value, (int, float)):
+                real_number_type_str = f"{type(1)} or {type(1.1)}"
+                raise CalmarendianDateError(
+                    f"TIMEDELTA: Argument '{arg}' must be {real_number_type_str}, not {type(value)}")
+
+        # We do not check values at this stage because all arguments can be arbitrarily large (or small)
+        # but we will consolidate everything into just days, seconds and microseconds
+        seconds += ((hours * 64) + minutes) * 64
+        microseconds += milliseconds * 1000
 
         if isinstance(days, float):
             fractional_days, whole_days = math.modf(days)
             fractional_seconds_cf, whole_seconds = math.modf(fractional_days * 16 * 4096)
             whole_days = int(whole_days)
             whole_seconds_cf = int(whole_seconds)
-        elif isinstance(days, int):
+        else:
             fractional_seconds_cf = 0.0
             whole_seconds_cf = 0
             whole_days = days
-        else:
-            raise CalmarendianDateError(f"Timedelta days must be a real number, not {days}.")
 
         self.days = whole_days
         self.seconds = whole_seconds_cf

@@ -24,8 +24,18 @@ class TimeDeltaTest(unittest.TestCase):
 
 class TimeDeltaBadDataTest(unittest.TestCase):
     def test_bad_input_types(self):
-        with self.assertRaises(CalmarendianDateError):
-            CalmarendianTimeDelta(seconds='garbage')
+        data = [
+            {"days": "garbage"},
+            {"hours": "garbage"},
+            {"minutes": "garbage"},
+            {"seconds": complex(12)},
+            {"milliseconds": "69"},
+            {"microseconds": ["garbage"]},
+        ]
+        for key, item in enumerate(data):
+            with self.subTest(i=key):
+                with self.assertRaises(CalmarendianDateError):
+                    CalmarendianTimeDelta(**item)
 
 
 if __name__ == '__main__':
