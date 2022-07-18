@@ -67,16 +67,48 @@ class CalmarendianTimeDelta(object):
         if isinstance(days, float):
             fractional_days, whole_days = math.modf(days)
             fractional_seconds_cf, whole_seconds = math.modf(fractional_days * 16 * 4096)
-            whole_days = int(whole_days)
+            whole_days_cf = int(whole_days)
             whole_seconds_cf = int(whole_seconds)
         else:
             fractional_seconds_cf = 0.0
             whole_seconds_cf = 0
-            whole_days = days
+            whole_days_cf = days
 
-        self.days = whole_days
+        if isinstance(seconds, float):
+            fractional_seconds, whole_seconds = math.modf(seconds)
+            whole_seconds_cf += int(whole_seconds)
+            fractional_seconds_cf += fractional_seconds
+        else:
+            whole_seconds_cf += seconds
+
+        fractional_seconds_cf, extra_seconds = math.modf(fractional_seconds_cf)
+        whole_seconds_cf += int(extra_seconds)
+
+        extra_days, whole_seconds_cf = divmod(whole_seconds_cf, 16 * 4096)
+        whole_days_cf += extra_days
+
+        fractional_microseconds_cf, whole_microseconds = math.modf(fractional_seconds_cf * 1_000_000)
+        whole_microseconds_cf = int(whole_microseconds)
+
+        if isinstance(microseconds, float):
+            fractional_microseconds, whole_microseconds = math.modf(microseconds)
+            whole_microseconds_cf += int(whole_microseconds)
+            fractional_microseconds_cf += fractional_microseconds
+        else:
+            whole_microseconds_cf += microseconds
+
+        extra_microseconds = round(fractional_microseconds_cf)
+        whole_microseconds_cf += extra_microseconds
+
+        extra_seconds, whole_microseconds_cf = divmod(whole_microseconds_cf, 1_000_000)
+        whole_seconds_cf += extra_seconds
+
+        extra_days, whole_seconds_cf = divmod(whole_seconds_cf, 16 * 4096)
+        whole_days_cf += extra_days
+
+        self.days = whole_days_cf
         self.seconds = whole_seconds_cf
-        self.microseconds = int(fractional_seconds_cf)
+        self.microseconds = whole_microseconds_cf
 
     @property
     def days(self):
@@ -111,6 +143,6 @@ class CalmarendianTimeDelta(object):
         if self._microseconds:
             out_string = f"{out_string}.{self._microseconds:06}"
         if self._days:
-            s = "" if self._days == 1 else "s"
+            s = "" if abs(self._days) == 1 else "s"
             out_string = f"{self._days} day{s} + {out_string}"
         return out_string
