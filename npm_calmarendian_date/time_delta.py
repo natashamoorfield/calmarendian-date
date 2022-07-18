@@ -2,6 +2,7 @@ import math
 from dataclasses import dataclass
 from typing import Union, Tuple
 
+from npm_calmarendian_date.c_date_config import CDateConfig
 from npm_calmarendian_date.exceptions import CalmarendianDateError
 
 
@@ -12,10 +13,10 @@ class CarryForwardDataBlock:
     to the next.
     """
     days: int = 0
-    fractional_seconds: float = 0.0
     whole_seconds: int = 0
-    fractional_microseconds: float = 0.0
+    fractional_seconds: float = 0.0
     whole_microseconds: int = 0
+    fractional_microseconds: float = 0.0
 
 
 class CalmarendianTimeDelta(object):
@@ -124,6 +125,33 @@ class CalmarendianTimeDelta(object):
         self.days = whole_days_cf
         self.seconds = whole_seconds_cf
         self.microseconds = whole_microseconds_cf
+
+    # INIT sub-methods
+    @staticmethod
+    def process_days(arg_days: RealNumber) -> CarryForwardDataBlock:
+        """
+        Break apart the 'days' argument into its integer and fractional components.
+        Convert the fractional component into seconds, also broken into integer and fractional components.
+        So, for example, 1.5 days splits into 1 day, 32768 seconds;
+        1.18838 days splits into 1 day, 12345 seconds and 0.67 fractional seconds.
+        At this stage, no normalization is performed so -1.5 days splits into -1 days, -32768 seconds.
+        Return all the derived data via the CarryForwardDataBlock.
+        """
+        cf = CarryForwardDataBlock()
+        cf.days, fractional_days = CalmarendianTimeDelta.split_float(arg_days)
+        cf.whole_seconds, cf.fractional_seconds = CalmarendianTimeDelta.split_float(
+            fractional_days * CDateConfig.SECONDS_per_DAY)
+        return cf
+
+    @staticmethod
+    def process_seconds(arg_seconds: RealNumber, cf: CarryForwardDataBlock) -> CarryForwardDataBlock:
+        print(arg_seconds)
+        return cf
+
+    @staticmethod
+    def process_microseconds(arg_microseconds: RealNumber, cf: CarryForwardDataBlock) -> CarryForwardDataBlock:
+        print(arg_microseconds)
+        return cf
 
     # GETTERS and SETTERS
     @property

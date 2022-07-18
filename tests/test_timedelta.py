@@ -21,6 +21,24 @@ class TimeDeltaTest(unittest.TestCase):
                 self.assertIsInstance(fx[0], int)
                 self.assertIsInstance(fx[1], float)
 
+    def test_process_days(self):
+        data = [
+            dict(days=0, result=(0, 0, 0.00, 0, 0.00)),
+            dict(days=1, result=(1, 0, 0.00, 0, 0.00)),
+            dict(days=1.5, result=(1, 32768, 0.0, 0, 0.0)),
+            dict(days=1.18837997436523438, result=(1, 12345, 0.67, 0, 0.0)),
+            dict(days=-1.5, result=(-1, -32768, 0.0, 0, 0.0)),
+            dict(days=-1.18837997436523438, result=(-1, -12345, -0.67, 0, 0.0)),
+        ]
+        for index, item in enumerate(data):
+            with self.subTest(i=index):
+                cf = CalmarendianTimeDelta.process_days(item["days"])
+                self.assertEqual(item["result"][0], cf.days)
+                self.assertEqual(item["result"][1], cf.whole_seconds)
+                self.assertEqual(item["result"][3], cf.whole_microseconds)
+                self.assertAlmostEqual(item["result"][2], cf.fractional_seconds, 7)
+                self.assertAlmostEqual(item["result"][4], cf.fractional_microseconds, 2)
+
     def test_day_time_deltas(self):
         data = [
             {"input": {"days": 1},
@@ -31,6 +49,8 @@ class TimeDeltaTest(unittest.TestCase):
              "output": (-1, 0, 0, "-1 day + 00:00:00")},
             {"input": {"days": 1.5},
              "output": (1, 32768, 0, "1 day + 08:00:00")},
+            {"input": {"days": -1.5},
+             "output": (-2, 32768, 0, "-2 days + 08:00:00")},
         ]
         for key, item in enumerate(data):
             with self.subTest(i=key):
