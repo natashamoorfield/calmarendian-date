@@ -15,6 +15,8 @@ class CDateConfig(object):
     # Scale Factors
     DAYS_per_GRAND_CYCLE: int = 1_718_101
     DAYS_per_CYCLE: float = DAYS_per_GRAND_CYCLE / 700
+    SECONDS_per_DAY: int = 16 * 64 * 64
+    MICROSECONDS_per_SECOND: int = 1_000_000
 
     # Regex representation of Grand Cycle and Common symbolic Notations
     GCN_DATE_STRING_RE = re.compile(r'^(\d{2})-([0-7]\d{2})-([1-7])-([0-5]\d)-([1-8])$')
