@@ -1,7 +1,21 @@
 import math
+from dataclasses import dataclass
 from typing import Union
 
 from npm_calmarendian_date.exceptions import CalmarendianDateError
+
+
+@dataclass
+class CarryForwardDataBlock:
+    """
+    Dataclass holding the various elements that are "carried forward" from one part of a time-delta initialization
+    to the next.
+    """
+    days: int = 0
+    fractional_seconds: float = 0.0
+    whole_seconds: int = 0
+    fractional_microseconds: float = 0.0
+    whole_microseconds: int = 0
 
 
 class CalmarendianTimeDelta(object):
