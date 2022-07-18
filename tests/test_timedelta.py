@@ -5,6 +5,22 @@ from npm_calmarendian_date.exceptions import CalmarendianDateError
 
 
 class TimeDeltaTest(unittest.TestCase):
+    def test_split_float(self):
+        data = [
+            {"input": 1.01, "output": (1, 0.01)},
+            {"input": -1.01, "output": (-1, -0.01)},
+            {"input": -101.9999999999, "output": (-101, -0.9999999999)},
+            {"input": 0, "output": (0, 0.0)},
+            {"input": 10, "output": (10, 0.0)},
+        ]
+        for index, item in enumerate(data):
+            with self.subTest(i=index):
+                fx = CalmarendianTimeDelta.split_float(item["input"])
+                self.assertEqual(item["output"][0], fx[0])
+                self.assertAlmostEqual(item["output"][1], fx[1])
+                self.assertIsInstance(fx[0], int)
+                self.assertIsInstance(fx[1], float)
+
     def test_day_time_deltas(self):
         data = [
             {"input": {"days": 1},

@@ -1,6 +1,6 @@
 import math
 from dataclasses import dataclass
-from typing import Union
+from typing import Union, Tuple
 
 from npm_calmarendian_date.exceptions import CalmarendianDateError
 
@@ -44,6 +44,7 @@ class CalmarendianTimeDelta(object):
         A new CalmarendianTimeDelta can be specified using any combination of days, hours, minutes, seconds,
         milliseconds and microseconds. Each component is optional, can be specified as positive or negative and
         given as an arbitrarily large float or integer value. Omitted components all default to zero.
+        All arguments are keyword only.
 
         Be aware that whatever combination of components are given, the internal representation of a time delta is
         normalized to a standard and unique representation given by days, seconds and microseconds.
@@ -124,6 +125,7 @@ class CalmarendianTimeDelta(object):
         self.seconds = whole_seconds_cf
         self.microseconds = whole_microseconds_cf
 
+    # GETTERS and SETTERS
     @property
     def days(self):
         return self._days
@@ -150,6 +152,7 @@ class CalmarendianTimeDelta(object):
     def microseconds(self, new_value: int):
         self._microseconds = new_value
 
+    # DUNDER methods
     def __str__(self):
         mm, ss = divmod(self._seconds, 64)
         hh, mm = divmod(mm, 64)
@@ -160,3 +163,15 @@ class CalmarendianTimeDelta(object):
             s = "" if abs(self._days) == 1 else "s"
             out_string = f"{self._days} day{s} + {out_string}"
         return out_string
+
+    # UTILITY methods
+    @staticmethod
+    def split_float(x: float) -> Tuple[int, float]:
+        """
+        Wrapper function for the standard math.modf() method.
+        Returns the integer and fractional parts of the argument as a two-tuple but, more intuitively, with
+        the integer part first, converted to an integer type. Within the context of the CalmarendianTimeDelta class
+        we always need the whole part specifically to be an integer, not a float.
+        """
+        fractional_part, whole_part = math.modf(x)
+        return int(whole_part), fractional_part
