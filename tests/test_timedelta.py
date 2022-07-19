@@ -23,21 +23,19 @@ class TimeDeltaTest(unittest.TestCase):
 
     def test_process_days(self):
         data = [
-            dict(days=0, result=(0, 0, 0.00, 0, 0.00)),
-            dict(days=1, result=(1, 0, 0.00, 0, 0.00)),
-            dict(days=1.5, result=(1, 32768, 0.0, 0, 0.0)),
-            dict(days=1.18837997436523438, result=(1, 12345, 0.67, 0, 0.0)),
-            dict(days=-1.5, result=(-1, -32768, 0.0, 0, 0.0)),
-            dict(days=-1.18837997436523438, result=(-1, -12345, -0.67, 0, 0.0)),
+            dict(days=0, result=(0, 0, 0)),
+            dict(days=1, result=(1, 0, 0)),
+            dict(days=1.5, result=(1, 32768, 0)),
+            dict(days=1.18838, result=(1, 12345, 671680)),
+            dict(days=-1.5, result=(-1, -32768, 0)),
+            dict(days=-1.18838, result=(-1, -12345, -671680)),
         ]
         for index, item in enumerate(data):
             with self.subTest(i=index):
                 cf = CalmarendianTimeDelta.process_days(item["days"])
                 self.assertEqual(item["result"][0], cf.days)
-                self.assertEqual(item["result"][1], cf.whole_seconds)
-                self.assertEqual(item["result"][3], cf.whole_microseconds)
-                self.assertAlmostEqual(item["result"][2], cf.fractional_seconds, 7)
-                self.assertAlmostEqual(item["result"][4], cf.fractional_microseconds, 2)
+                self.assertEqual(item["result"][1], cf.seconds)
+                self.assertEqual(item["result"][2], round(cf.microseconds))
 
     def test_day_time_deltas(self):
         data = [

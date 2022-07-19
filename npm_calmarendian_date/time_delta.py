@@ -13,10 +13,8 @@ class CarryForwardDataBlock:
     to the next.
     """
     days: int = 0
-    whole_seconds: int = 0
-    fractional_seconds: float = 0.0
-    whole_microseconds: int = 0
-    fractional_microseconds: float = 0.0
+    seconds: int = 0
+    microseconds: float = 0.0
 
 
 class CalmarendianTimeDelta(object):
@@ -131,16 +129,20 @@ class CalmarendianTimeDelta(object):
     def process_days(arg_days: RealNumber) -> CarryForwardDataBlock:
         """
         Break apart the 'days' argument into its integer and fractional components.
-        Convert the fractional component into seconds, also broken into integer and fractional components.
+        Convert the fractional day into seconds, and break that into integer and fractional components.
+        Convert the fractional second into microseconds
         So, for example, 1.5 days splits into 1 day, 32768 seconds;
-        1.18838 days splits into 1 day, 12345 seconds and 0.67 fractional seconds.
-        At this stage, no normalization is performed so -1.5 days splits into -1 days, -32768 seconds.
+        1.18838 days splits into 1 day, 12345 seconds and 671680 microseconds.
+        At this stage, no normalization is performed so -1.5 days splits into -1 days, -32768 seconds
+        and -671680 microseconds.
         Return all the derived data via the CarryForwardDataBlock.
         """
         cf = CarryForwardDataBlock()
         cf.days, fractional_days = CalmarendianTimeDelta.split_float(arg_days)
-        cf.whole_seconds, cf.fractional_seconds = CalmarendianTimeDelta.split_float(
+        cf.seconds, fractional_seconds = CalmarendianTimeDelta.split_float(
             fractional_days * CDateConfig.SECONDS_per_DAY)
+        cf.microseconds = fractional_seconds * CDateConfig.MICROSECONDS_per_SECOND
+
         return cf
 
     @staticmethod
