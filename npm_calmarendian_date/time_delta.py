@@ -14,7 +14,23 @@ class CarryForwardDataBlock:
     """
     days: int = 0
     seconds: int = 0
-    microseconds: float = 0.0
+    microseconds: Union[int, float] = 0.0
+
+    def normalize(self) -> None:
+        """
+        Normalize the data so that:
+        0 <= self.microseconds < CDateConfig.MICROSECONDS_per_SECOND
+        0 <= self.seconds < CDateConfig.SECONDS_per_DAY
+        The magic of the divmod function ensures that all negative microsecond and second values bubble up to the
+        day value, ensuring that there is only one representation for any given time-delta.
+        """
+        self.microseconds = round(self.microseconds)
+
+        extra_seconds, self.microseconds = divmod(self.microseconds, CDateConfig.MICROSECONDS_per_SECOND)
+        self.seconds += extra_seconds
+
+        extra_days, self.seconds = divmod(self.seconds, CDateConfig.SECONDS_per_DAY)
+        self.days += extra_days
 
 
 class CalmarendianTimeDelta(object):
@@ -78,51 +94,14 @@ class CalmarendianTimeDelta(object):
         seconds += ((hours * 64) + minutes) * 64
         microseconds += milliseconds * 1000
 
-        if isinstance(days, float):
-            fractional_days, whole_days = math.modf(days)
-            fractional_seconds_cf, whole_seconds = math.modf(fractional_days * 16 * 4096)
-            whole_days_cf = int(whole_days)
-            whole_seconds_cf = int(whole_seconds)
-        else:
-            fractional_seconds_cf = 0.0
-            whole_seconds_cf = 0
-            whole_days_cf = days
+        cf = CalmarendianTimeDelta.process_days(days)
+        cf = CalmarendianTimeDelta.process_seconds(seconds, cf)
+        cf = CalmarendianTimeDelta.process_microseconds(microseconds, cf)
+        cf.normalize()
 
-        if isinstance(seconds, float):
-            fractional_seconds, whole_seconds = math.modf(seconds)
-            whole_seconds_cf += int(whole_seconds)
-            fractional_seconds_cf += fractional_seconds
-        else:
-            whole_seconds_cf += seconds
-
-        fractional_seconds_cf, extra_seconds = math.modf(fractional_seconds_cf)
-        whole_seconds_cf += int(extra_seconds)
-
-        extra_days, whole_seconds_cf = divmod(whole_seconds_cf, 16 * 4096)
-        whole_days_cf += extra_days
-
-        fractional_microseconds_cf, whole_microseconds = math.modf(fractional_seconds_cf * 1_000_000)
-        whole_microseconds_cf = int(whole_microseconds)
-
-        if isinstance(microseconds, float):
-            fractional_microseconds, whole_microseconds = math.modf(microseconds)
-            whole_microseconds_cf += int(whole_microseconds)
-            fractional_microseconds_cf += fractional_microseconds
-        else:
-            whole_microseconds_cf += microseconds
-
-        extra_microseconds = round(fractional_microseconds_cf)
-        whole_microseconds_cf += extra_microseconds
-
-        extra_seconds, whole_microseconds_cf = divmod(whole_microseconds_cf, 1_000_000)
-        whole_seconds_cf += extra_seconds
-
-        extra_days, whole_seconds_cf = divmod(whole_seconds_cf, 16 * 4096)
-        whole_days_cf += extra_days
-
-        self.days = whole_days_cf
-        self.seconds = whole_seconds_cf
-        self.microseconds = whole_microseconds_cf
+        self.days = cf.days
+        self.seconds = cf.seconds
+        self.microseconds = round(cf.microseconds)
 
     # INIT sub-methods
     @staticmethod
@@ -147,12 +126,22 @@ class CalmarendianTimeDelta(object):
 
     @staticmethod
     def process_seconds(arg_seconds: RealNumber, cf: CarryForwardDataBlock) -> CarryForwardDataBlock:
-        print(arg_seconds)
+        """
+        Break apart the 'seconds' argument into its integer and fractional components.
+        Convert the fractional second into microseconds.
+        Add the whole seconds and microseconds to the carry-forward data block and return the updated data block.
+        """
+        ws, fs = CalmarendianTimeDelta.split_float(arg_seconds)
+        cf.seconds += ws
+        cf.microseconds += fs * CDateConfig.MICROSECONDS_per_SECOND
         return cf
 
     @staticmethod
     def process_microseconds(arg_microseconds: RealNumber, cf: CarryForwardDataBlock) -> CarryForwardDataBlock:
-        print(arg_microseconds)
+        """
+        Add the value of the 'microseconds' argument to the carry-forward data block and return the updated data block.
+        """
+        cf.microseconds += arg_microseconds
         return cf
 
     # GETTERS and SETTERS

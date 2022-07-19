@@ -1,7 +1,9 @@
 import unittest
+from dataclasses import astuple
 
 from npm_calmarendian_date import CalmarendianTimeDelta
 from npm_calmarendian_date.exceptions import CalmarendianDateError
+from npm_calmarendian_date.time_delta import CarryForwardDataBlock
 
 
 class TimeDeltaTest(unittest.TestCase):
@@ -29,6 +31,7 @@ class TimeDeltaTest(unittest.TestCase):
             dict(days=1.18838, result=(1, 12345, 671680)),
             dict(days=-1.5, result=(-1, -32768, 0)),
             dict(days=-1.18838, result=(-1, -12345, -671680)),
+            dict(days=0.018831229504089355, result=(0, 1234, 123457)),
         ]
         for index, item in enumerate(data):
             with self.subTest(i=index):
@@ -36,6 +39,45 @@ class TimeDeltaTest(unittest.TestCase):
                 self.assertEqual(item["result"][0], cf.days)
                 self.assertEqual(item["result"][1], cf.seconds)
                 self.assertEqual(item["result"][2], round(cf.microseconds))
+
+    def test_process_seconds(self):
+        def cfb(d: int, s: int, us: float) -> CarryForwardDataBlock:
+            return CarryForwardDataBlock(d, s, us)
+        data = [
+            dict(seconds=0, cf=cfb(0, 0, 0), result=(0, 0, 0)),
+            dict(seconds=0, cf=cfb(1, 0, 0), result=(1, 0, 0)),
+            dict(seconds=1, cf=cfb(0, 0, 0), result=(0, 1, 0)),
+            dict(seconds=1, cf=cfb(1, 0, 0), result=(1, 1, 0)),
+            dict(seconds=100, cf=cfb(1, 1000, 0), result=(1, 1100, 0)),
+            dict(seconds=-100, cf=cfb(1, 1000, 0), result=(1, 900, 0)),
+            dict(seconds=100000, cf=cfb(1, 1000, 500000), result=(1, 101000, 500000)),
+            dict(seconds=-100000, cf=cfb(1, 1000, 500000), result=(1, -99000, 500000)),
+            dict(seconds=63.5, cf=cfb(1, 1000, 0), result=(1, 1063, 500000)),
+            dict(seconds=-100.25, cf=cfb(1, 1000, 0), result=(1, 900, -250000)),
+            dict(seconds=-100.25, cf=cfb(1, 1000, 500000), result=(1, 900, 250000)),
+            dict(seconds=1111.00000083, cf=cfb(0, 1234, 123456.78), result=(0, 2345, 123458)),
+        ]
+        for index, item in enumerate(data):
+            with self.subTest(i=index):
+                cf = CalmarendianTimeDelta.process_seconds(item["seconds"], item["cf"])
+                self.assertTupleEqual(item["result"], (cf.days, cf.seconds, round(cf.microseconds)))
+
+    def test_normalization(self):
+        def cfb(d: int, s: int, us: float) -> CarryForwardDataBlock:
+            return CarryForwardDataBlock(d, s, us)
+        data = [
+            dict(cf=cfb(0, 0, 0), result=(0, 0, 0)),
+            dict(cf=cfb(0, 0, 1), result=(0, 0, 1)),
+            dict(cf=cfb(0, 0, 1.7), result=(0, 0, 2)),
+            dict(cf=cfb(0, 0, -1), result=(-1, 65535, 999999)),
+            dict(cf=cfb(0, 0, 1500000), result=(0, 1, 500000)),
+            dict(cf=cfb(0, -65535, 2500000), result=(-1, 3, 500000)),
+        ]
+        for index, item in enumerate(data):
+            with self.subTest(i=index):
+                cf = item["cf"]
+                cf.normalize()
+                self.assertTupleEqual(item["result"], astuple(cf))
 
     def test_day_time_deltas(self):
         data = [
