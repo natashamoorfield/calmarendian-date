@@ -67,9 +67,9 @@ class CalmarendianTimeDelta(object):
         timedelta class and it, apparently, is entirely arbitrary.
 
         The normalization process will result in values constrained thus:
-        0 <= microseconds < 1e6
-        0 <= seconds < 2 ** 16
-        -171_810_100 <= days < 171_810_100
+        0 <= microseconds < 1e6 (MICROSECONDS_per_SECOND)
+        0 <= seconds < 2 ** 16 (SECONDS_per_DAY)
+        -171_810_100 <= days < 171_810_100 (MAX_DELTA_DAYS)
 
         The normalization process ensures that the microseconds and seconds components do not overflow their bounds;
         if days exceeds its constraints, a CalmarendianDateRangeError is raised.
