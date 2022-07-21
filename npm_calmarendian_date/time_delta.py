@@ -5,6 +5,8 @@ from typing import Union, Tuple
 from npm_calmarendian_date.c_date_config import CDateConfig
 from npm_calmarendian_date.exceptions import CalmarendianDateError
 
+RealNumber = Union[int, float]
+
 
 @dataclass
 class CarryForwardDataBlock:
@@ -14,7 +16,7 @@ class CarryForwardDataBlock:
     """
     days: int = 0
     seconds: int = 0
-    microseconds: Union[int, float] = 0.0
+    microseconds: RealNumber = 0.0
 
     def normalize(self) -> None:
         """
@@ -39,8 +41,6 @@ class CalmarendianTimeDelta(object):
     two date, date-time or time objects to a resolution of one microsecond - one one-millionth of a second.
     Its primary purpose is to add and subtract such durations from a given date/time object.
     """
-    RealNumber = Union[int, float]
-
     __slots__ = ('_days', '_seconds', '_microseconds')
 
     def __init__(
