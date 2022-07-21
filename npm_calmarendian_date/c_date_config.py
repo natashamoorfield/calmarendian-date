@@ -12,10 +12,13 @@ class CDateConfig(object):
     MIN_ADR: int = -1_718_100
     MAX_ADR: int = 170_091_999
 
+    # The maximum Δt (in days) that can exist between two dates or date-times:
+    MAX_DELTA_DAYS: int = 171_810_100
+
     # Scale Factors
     DAYS_per_GRAND_CYCLE: int = 1_718_101
     DAYS_per_CYCLE: float = DAYS_per_GRAND_CYCLE / 700
-    SECONDS_per_DAY: int = 16 * 64 * 64
+    SECONDS_per_DAY: int = 16 * 64 * 64  # Could also be expressed as 2 ** 16
     MICROSECONDS_per_SECOND: int = 1_000_000
 
     # Regex representation of Grand Cycle and Common symbolic Notations
