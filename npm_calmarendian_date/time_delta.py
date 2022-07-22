@@ -152,7 +152,10 @@ class CalmarendianTimeDelta(object):
     @days.setter
     def days(self, new_value: int):
         if not isinstance(new_value, int):
-            raise CalmarendianDateError(f"TIMEDELTA: internally, days must be of type 'int' not {type(new_value)}")
+            raise CalmarendianDateError(
+                f"TIMEDELTA: internally, days must be of type {type(1)}  not {type(new_value)}.")
+        if new_value < -CDateConfig.MAX_DELTA_DAYS or new_value >= CDateConfig.MAX_DELTA_DAYS:
+            raise CalmarendianDateError(f"TIMEDELTA days illegal value: {new_value}.")
         self._days = new_value
 
     @property
@@ -161,6 +164,12 @@ class CalmarendianTimeDelta(object):
 
     @seconds.setter
     def seconds(self, new_value: int):
+        if not isinstance(new_value, int):
+            raise CalmarendianDateError(
+                f"TIMEDELTA: internally, seconds must be of type {type(1)}  not {type(new_value)}.")
+        if new_value < 0 or new_value >= CDateConfig.SECONDS_per_DAY:
+            raise CalmarendianDateError(f"TIMEDELTA seconds illegal value: {new_value}.")
+
         self._seconds = new_value
 
     @property
@@ -169,6 +178,12 @@ class CalmarendianTimeDelta(object):
 
     @microseconds.setter
     def microseconds(self, new_value: int):
+        if not isinstance(new_value, int):
+            raise CalmarendianDateError(
+                f"TIMEDELTA: internally, microseconds must be of type {type(1)}  not {type(new_value)}.")
+        if new_value < 0 or new_value >= CDateConfig.MICROSECONDS_per_SECOND:
+            raise CalmarendianDateError(f"TIMEDELTA microseconds illegal value: {new_value}.")
+
         self._microseconds = new_value
 
     # DUNDER methods

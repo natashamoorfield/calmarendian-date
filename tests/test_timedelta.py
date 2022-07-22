@@ -143,6 +143,44 @@ class TimeDeltaBadDataTest(unittest.TestCase):
                 with self.assertRaises(CalmarendianDateError):
                     CalmarendianTimeDelta(**item)
 
+    def test_bad_microsecond_values(self):
+        data = [
+            1234.56,  # Final value must be an integer
+            -100,
+            1_234_567
+        ]
+        for index, item in enumerate(data):
+            with self.subTest(i=index):
+                dt = CalmarendianTimeDelta()
+                with self.assertRaises(CalmarendianDateError):
+                    dt.microseconds = item
+
+    def test_bad_second_values(self):
+        data = [
+            1234.56,  # Final value must be an integer
+            -1,
+            1_234_567,
+            65_536
+        ]
+        for index, item in enumerate(data):
+            with self.subTest(i=index):
+                dt = CalmarendianTimeDelta()
+                with self.assertRaises(CalmarendianDateError):
+                    dt.seconds = item
+
+    def test_bad_day_values(self):
+        data = [
+            1234.56,  # Final value must be an integer
+            -171_810_101,
+            171_810_100,
+            200_000_000
+        ]
+        for index, item in enumerate(data):
+            with self.subTest(i=index):
+                dt = CalmarendianTimeDelta()
+                with self.assertRaises(CalmarendianDateError):
+                    dt.days = item
+
 
 if __name__ == '__main__':
     unittest.main()
