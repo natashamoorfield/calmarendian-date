@@ -127,6 +127,19 @@ class TimeDeltaTest(unittest.TestCase):
                 td = CalmarendianTimeDelta(**item["input"])
                 self.assertEqual(item["output"], (td.days, td.seconds, td.microseconds, str(td)))
 
+    def test_resolution_info(self):
+        delta_max = CalmarendianTimeDelta.maximum()
+        delta_min = CalmarendianTimeDelta.minimum()
+        delta_res = CalmarendianTimeDelta.resolution()
+        self.assertIsInstance(delta_min, CalmarendianTimeDelta)
+        self.assertIsInstance(delta_max, CalmarendianTimeDelta)
+        self.assertIsInstance(delta_res, CalmarendianTimeDelta)
+        # TODO reinstate the next test once comparison methods have been implemented:
+        # self.assertTrue(delta_max > delta_min)
+        self.assertEqual(str(delta_min), "-171810100 days + 00:00:00.000001")
+        self.assertEqual(str(delta_max), "171810099 days + 15:63:63.999999")
+        self.assertEqual(str(delta_res), "00:00:00.000001")
+
 
 class TimeDeltaBadDataTest(unittest.TestCase):
     def test_bad_input_types(self):

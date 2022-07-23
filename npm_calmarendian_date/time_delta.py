@@ -144,6 +144,36 @@ class CalmarendianTimeDelta(object):
         cf.microseconds += arg_microseconds
         return cf
 
+    # Other CONSTRUCTORS
+    @classmethod
+    def maximum(cls):
+        """
+        Return the largest allowable time-delta. This has been defined as the maximum possible difference between two
+        valid CalmarendianDateTime objects: 171_810_099 days, 65535.999999 seconds.
+        """
+        return cls(days=171_810_099, seconds=65_535, microseconds=999_999)
+
+    @classmethod
+    def minimum(cls):
+        """
+        Return the negative of the largest allowable time-delta, the normalized representation of which is
+        -171_810_100 days + one microsecond.
+        It is possible to construct a time-delta of exactly -171_810_100 days but only because
+        trapping the error isn't worth the bother.
+
+        The value of CalmarendianTimeDelta.minimum() should not be confused with the smallest possible difference
+        between two date-time objects (which is zero) nor with the smallest possible difference between two non-equal
+        date-time objects (which is 1 microsecond).
+        """
+        return cls(days=-171_810_100, microseconds=1)
+
+    @classmethod
+    def resolution(cls):
+        """
+        The smallest possible difference between non-equal timedelta objects which is 1 microsecond.
+        """
+        return cls(microseconds=1)
+
     # GETTERS and SETTERS
     @property
     def days(self):
