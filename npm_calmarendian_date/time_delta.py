@@ -228,6 +228,12 @@ class CalmarendianTimeDelta(object):
             out_string = f"{self._days} day{s} + {out_string}"
         return out_string
 
+    # COMPARISON methods
+    def __eq__(self, other):
+        if isinstance(other, CalmarendianTimeDelta):
+            return self._compare(other) == 0
+        return NotImplemented
+
     # UTILITY methods
     @staticmethod
     def split_float(x: float) -> Tuple[int, float]:
@@ -239,3 +245,24 @@ class CalmarendianTimeDelta(object):
         """
         fractional_part, whole_part = math.modf(x)
         return int(whole_part), fractional_part
+
+    def _get_state(self) -> Tuple[int, int, int]:
+        """
+        Return a tuple containing the days, seconds, microseconds properties of the time-delta
+        """
+        return self.days, self.seconds, self.microseconds
+
+    def _compare(self, other) -> int:
+        """
+        Compare two CalmarendianTimeDelta objects and return 0 if they are equal to one another,
+        +1 if self is greater than the other and
+        -1 if self is less than the other.
+        """
+        assert isinstance(other, CalmarendianTimeDelta)
+        this = self._get_state()
+        that = other._get_state()
+        if this == that:
+            return 0
+        if this > that:
+            return 1
+        return -1

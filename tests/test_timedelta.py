@@ -5,6 +5,40 @@ from npm_calmarendian_date import CalmarendianTimeDelta
 from npm_calmarendian_date.exceptions import CalmarendianDateError
 from npm_calmarendian_date.time_delta import CarryForwardDataBlock
 
+# Let's make a shorthand alias for CalmarendianTimeDelta
+Delta = CalmarendianTimeDelta
+
+
+class TimeDeltaBasicsTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.dt0 = Delta()
+        cls.dt1 = Delta(days=1, seconds=1, microseconds=1)
+        cls.dt2 = Delta(days=1, seconds=1, microseconds=1)
+        cls.dt3 = Delta(days=-1, seconds=1, microseconds=1)
+
+    def test_get_state(self):
+        data = [
+            dict(dt=Delta(),
+                 result=(0, 0, 0)),
+            dict(dt=Delta(days=1, seconds=234, microseconds=567),
+                 result=(1, 234, 567)),
+        ]
+        for index, item in enumerate(data):
+            with self.subTest(i=index):
+                self.assertEqual(item["result"], item["dt"]._get_state())
+
+    def test_compare(self):
+        self.assertEqual(0, self.dt1._compare(self.dt2))
+        self.assertEqual(1, self.dt1._compare(self.dt0))
+        self.assertEqual(-1, self.dt3._compare(self.dt0))
+        self.assertEqual(-1, self.dt3._compare(Delta.maximum()))
+
+    def test_eq(self):
+        self.assertEqual(self.dt1, self.dt2)
+        self.assertNotEqual(self.dt0, self.dt1)
+        self.assertNotEqual(self.dt2, "garbage")
+
 
 class TimeDeltaTest(unittest.TestCase):
     def test_split_float(self):
@@ -139,6 +173,19 @@ class TimeDeltaTest(unittest.TestCase):
         self.assertEqual(str(delta_min), "-171810100 days + 00:00:00.000001")
         self.assertEqual(str(delta_max), "171810099 days + 15:63:63.999999")
         self.assertEqual(str(delta_res), "00:00:00.000001")
+
+    def test_equivalences(self):
+        self.assertEqual(Delta(days=1), Delta(hours=16))
+        self.assertEqual(Delta(hours=1), Delta(minutes=64))
+        self.assertEqual(Delta(minutes=1), Delta(seconds=64))
+        self.assertEqual(Delta(seconds=1), Delta(milliseconds=1000))
+        self.assertEqual(Delta(milliseconds=1), Delta(microseconds=1000))
+
+        self.assertEqual(Delta(days=1.0/16), Delta(hours=1))
+        self.assertEqual(Delta(hours=1.0/64), Delta(minutes=1))
+        self.assertEqual(Delta(minutes=1.0/64), Delta(seconds=1))
+        self.assertEqual(Delta(seconds=0.001), Delta(milliseconds=1))
+        self.assertEqual(Delta(milliseconds=0.001), Delta(microseconds=1))
 
 
 class TimeDeltaBadDataTest(unittest.TestCase):
