@@ -19,14 +19,14 @@ class TimeDeltaBasicsTest(unittest.TestCase):
 
     def test_get_state(self):
         data = [
-            dict(dt=Delta(),
-                 result=(0, 0, 0)),
-            dict(dt=Delta(days=1, seconds=234, microseconds=567),
-                 result=(1, 234, 567)),
+            # (test_item, expected)
+            (Delta(), (0, 0, 0)),
+            (Delta(days=1, seconds=234, microseconds=567), (1, 234, 567)),
         ]
         for index, item in enumerate(data):
+            test_item, expected = item
             with self.subTest(i=index):
-                self.assertEqual(item["result"], item["dt"]._get_state())
+                self.assertEqual(expected, test_item._get_state())
 
     def test_compare(self):
         self.assertEqual(0, self.dt1._compare(self.dt2))
@@ -43,19 +43,23 @@ class TimeDeltaBasicsTest(unittest.TestCase):
 class TimeDeltaTest(unittest.TestCase):
     def test_split_float(self):
         data = [
-            {"input": 1.01, "output": (1, 0.01)},
-            {"input": -1.01, "output": (-1, -0.01)},
-            {"input": -101.9999999999, "output": (-101, -0.9999999999)},
-            {"input": 0, "output": (0, 0.0)},
-            {"input": 10, "output": (10, 0.0)},
+            # (test_item, expected(whole, fractional))
+            (1.01, (1, 0.01)),
+            (-1.01, (-1, -0.01)),
+            (-101.9999999999, (-101, -0.9999999999)),
+            (0, (0, 0.0)),
+            (-0, (0, 0.0)),
+            (11, (11, 0.0)),
+            (-20, (-20, 0.0)),
         ]
-        for index, item in enumerate(data):
-            with self.subTest(i=index):
-                fx = CalmarendianTimeDelta.split_float(item["input"])
-                self.assertEqual(item["output"][0], fx[0])
-                self.assertAlmostEqual(item["output"][1], fx[1])
-                self.assertIsInstance(fx[0], int)
-                self.assertIsInstance(fx[1], float)
+        for item in data:
+            test_item, expected = item
+            with self.subTest(i=str(test_item)):
+                wp, fp = CalmarendianTimeDelta.split_float(test_item)
+                self.assertEqual(expected[0], wp)
+                self.assertAlmostEqual(expected[1], fp)
+                self.assertIsInstance(wp, int)
+                self.assertIsInstance(fp, float)
 
     def test_process_days(self):
         data = [
