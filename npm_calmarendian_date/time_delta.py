@@ -216,6 +216,22 @@ class CalmarendianTimeDelta(object):
 
         self._microseconds = new_value
 
+    def total_seconds(self, result_type: str = 'float') -> Union[int, float]:
+        """
+        Return the duration of the time-delta is seconds.
+        Return value can be an int (with microseconds rounded to the nearest second)
+        by specifying a return_type of 'int' or as a float (default)
+        :param result_type: Can be any of 'i', 'int', 'f', 'float', upper or lower case.
+        """
+        rt = str(result_type).lower()
+        if rt not in ['f', 'float', 'i', 'int']:
+            raise CalmarendianDateError(f"TIMEDELTA total_seconds: Bad type specification '{result_type}'.")
+        whole_seconds = self.days * CDateConfig.SECONDS_per_DAY + self.seconds
+        if rt[0] == 'i':
+            return whole_seconds + round(self.microseconds / CDateConfig.MICROSECONDS_per_SECOND)
+        us = whole_seconds * CDateConfig.MICROSECONDS_per_SECOND + self.microseconds
+        return us / CDateConfig.MICROSECONDS_per_SECOND
+
     # DUNDER methods
     def __str__(self):
         mm, ss = divmod(self._seconds, 64)

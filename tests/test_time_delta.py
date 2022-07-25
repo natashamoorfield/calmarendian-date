@@ -191,6 +191,23 @@ class TimeDeltaTest(unittest.TestCase):
         self.assertEqual(Delta(seconds=0.001), Delta(milliseconds=1))
         self.assertEqual(Delta(milliseconds=0.001), Delta(microseconds=1))
 
+    def test_total_seconds(self):
+        data = [
+            # (test_item, expected(int, float))
+            (Delta(), (0, 0.00)),
+            (Delta(days=1), (65536, 65536.00)),
+            (Delta(days=1, seconds=2345), (67881, 67881.00)),
+            (Delta(days=1, seconds=2345, microseconds=678900), (67882, 67881.6789)),
+            (Delta(days=-1, seconds=2345, microseconds=678900), (-63190, -63190.3211)),
+            (Delta(days=100_000_000, seconds=2345, microseconds=678900), (6553600002346, 6553600002345.6789)),
+        ]
+        for index, item in enumerate(data):
+            dt, expected = item
+            with self.subTest(i=index):
+                self.assertEqual(expected[0], dt.total_seconds('int'))
+                self.assertAlmostEqual(expected[1], dt.total_seconds())
+                self.assertAlmostEqual(expected[1], dt.total_seconds('float'))
+
 
 class TimeDeltaBadDataTest(unittest.TestCase):
     def test_bad_input_types(self):
@@ -244,6 +261,10 @@ class TimeDeltaBadDataTest(unittest.TestCase):
                 dt = CalmarendianTimeDelta()
                 with self.assertRaises(CalmarendianDateError):
                     dt.days = item
+
+    def test_total_seconds(self):
+        dt = Delta()
+        self.assertRaises(CalmarendianDateError, dt.total_seconds, 'str')
 
 
 if __name__ == '__main__':
