@@ -40,6 +40,10 @@ class CalmarendianTimeDelta(object):
     A CalmarendianTimeDelta object is a measure of time duration which is the difference between
     two date, date-time or time objects to a resolution of one microsecond - one one-millionth of a second.
     Its primary purpose is to add and subtract such durations from a given date/time object.
+
+    An interesting facet of the Calmarendian time system (but not one we take advantage of here) is that
+    any time period which is a whole number of seconds long has, when expressed as days and fractions of a day,
+    an exact binary representation.
     """
     __slots__ = ('_days', '_seconds', '_microseconds')
 
