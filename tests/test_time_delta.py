@@ -153,7 +153,7 @@ class TimeDeltaTest(unittest.TestCase):
                 td = CalmarendianTimeDelta(**item["input"])
                 self.assertEqual(item["output"], (td.days, td.seconds, td.microseconds, str(td)))
 
-    def test_combination_time_deltas(self):
+    def test_simple_combinations(self):
         data = [
             {"input": {"days": 1, "hours": 8},
              "output": (1, 32768, 0, "1 day + 08:00:00")},
@@ -164,6 +164,18 @@ class TimeDeltaTest(unittest.TestCase):
             with self.subTest(i=key):
                 td = CalmarendianTimeDelta(**item["input"])
                 self.assertEqual(item["output"], (td.days, td.seconds, td.microseconds, str(td)))
+
+    def test_combinations_with_carries(self):
+        data = [
+            # (test_item, expected)
+            (Delta(days=100, hours=-1600, minutes=-3, seconds=16, microseconds=176_000_001),
+             Delta(microseconds=1)),
+            (Delta(days=10.75, hours=24.75, minutes=48, seconds=1.5, microseconds=750_000),
+             Delta(days=12, seconds=22530, microseconds=250_000)),
+        ]
+        for index, item in enumerate(data):
+            with self.subTest(i=index):
+                self.assertTupleEqual(item[1]._get_state(), item[0]._get_state())
 
     def test_resolution_info(self):
         delta_max = CalmarendianTimeDelta.maximum()
