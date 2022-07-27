@@ -220,6 +220,23 @@ class TimeDeltaTest(unittest.TestCase):
                 self.assertAlmostEqual(expected[1], dt.total_seconds())
                 self.assertAlmostEqual(expected[1], dt.total_seconds('float'))
 
+    def test_object_hashing(self):
+        data = [
+            # (test_item, expected)
+            (Delta(days=200, hours=-3200, minutes=-3, seconds=16, microseconds=176_000_000),
+             Delta()),
+            (Delta(days=10.75, hours=24.75, minutes=48, seconds=1.5, microseconds=750_000),
+             Delta(days=12, seconds=22530, microseconds=250_000)),
+        ]
+        for index, item in enumerate(data):
+            dt1, dt2 = item
+            dx = {dt1: 1}
+            with self.subTest(i=index):
+                self.assertEqual(hash(dt2), hash(dt1))
+                dx[dt2] = 2
+                self.assertEqual(1, len(dx))
+                self.assertEqual(2, dx[dt1])
+
 
 class TimeDeltaBadDataTest(unittest.TestCase):
     def test_bad_input_types(self):
@@ -277,6 +294,17 @@ class TimeDeltaBadDataTest(unittest.TestCase):
     def test_total_seconds(self):
         dt = Delta()
         self.assertRaises(CalmarendianDateError, dt.total_seconds, 'str')
+
+    def test_illegal_assignments(self):
+        dt = Delta(days=1, seconds=23, microseconds=45678)
+        dx = {dt: 0}
+        with self.assertRaises(CalmarendianDateError):
+            dt.days = 99
+        with self.assertRaises(CalmarendianDateError):
+            dt.seconds -= 99
+        with self.assertRaises(CalmarendianDateError):
+            dt.days += 99
+        self.assertEqual(0, dx[dt])
 
 
 if __name__ == '__main__':

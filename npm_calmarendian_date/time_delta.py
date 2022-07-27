@@ -45,7 +45,7 @@ class CalmarendianTimeDelta(object):
     any time period which is a whole number of seconds long has, when expressed as days and fractions of a day,
     an exact binary representation.
     """
-    __slots__ = ('_days', '_seconds', '_microseconds')
+    __slots__ = ('_days', '_seconds', '_microseconds', '_hashcode')
 
     def __init__(
             self,
@@ -103,6 +103,7 @@ class CalmarendianTimeDelta(object):
         cf = CalmarendianTimeDelta.process_microseconds(microseconds, cf)
         cf.normalize()
 
+        self._hashcode = None
         self.days = cf.days
         self.seconds = cf.seconds
         self.microseconds = round(cf.microseconds)
@@ -185,9 +186,7 @@ class CalmarendianTimeDelta(object):
 
     @days.setter
     def days(self, new_value: int):
-        if not isinstance(new_value, int):
-            raise CalmarendianDateError(
-                f"TIMEDELTA: internally, days must be of type {type(1)}  not {type(new_value)}.")
+        self._common_new_value_checks('days', new_value)
         if new_value < -CDateConfig.MAX_DELTA_DAYS or new_value >= CDateConfig.MAX_DELTA_DAYS:
             raise CalmarendianDateError(f"TIMEDELTA days illegal value: {new_value}.")
         self._days = new_value
@@ -198,9 +197,7 @@ class CalmarendianTimeDelta(object):
 
     @seconds.setter
     def seconds(self, new_value: int):
-        if not isinstance(new_value, int):
-            raise CalmarendianDateError(
-                f"TIMEDELTA: internally, seconds must be of type {type(1)}  not {type(new_value)}.")
+        self._common_new_value_checks('seconds', new_value)
         if new_value < 0 or new_value >= CDateConfig.SECONDS_per_DAY:
             raise CalmarendianDateError(f"TIMEDELTA seconds illegal value: {new_value}.")
 
@@ -212,9 +209,7 @@ class CalmarendianTimeDelta(object):
 
     @microseconds.setter
     def microseconds(self, new_value: int):
-        if not isinstance(new_value, int):
-            raise CalmarendianDateError(
-                f"TIMEDELTA: internally, microseconds must be of type {type(1)}  not {type(new_value)}.")
+        self._common_new_value_checks('microseconds', new_value)
         if new_value < 0 or new_value >= CDateConfig.MICROSECONDS_per_SECOND:
             raise CalmarendianDateError(f"TIMEDELTA microseconds illegal value: {new_value}.")
 
@@ -247,6 +242,14 @@ class CalmarendianTimeDelta(object):
             s = "" if abs(self._days) == 1 else "s"
             out_string = f"{self._days} day{s} + {out_string}"
         return out_string
+
+    def __hash__(self):
+        """
+        The object is hashed only once. After that the values of days, seconds and microseconds cannot be changed.
+        """
+        if self._hashcode is None:
+            self._hashcode = hash(self._get_state())
+        return self._hashcode
 
     # COMPARISON methods
     def __eq__(self, other):
@@ -286,3 +289,15 @@ class CalmarendianTimeDelta(object):
         if this > that:
             return 1
         return -1
+
+    def _common_new_value_checks(self, name: str, new_value: int) -> None:
+        """
+        Raise a CalmarendianDateError if the time-delta object has previously been hashed.
+        Raise a CalmarendianDateError if the new_value is not an integer.
+        Otherwise, do nothing.
+        """
+        if self._hashcode is not None:
+            raise CalmarendianDateError("Cannot change a TIMEDELTA after it has been hashed.")
+        if not isinstance(new_value, int):
+            raise CalmarendianDateError(
+                f"TIMEDELTA: internally, {name} must be of type {type(1)} not {type(new_value)}.")
