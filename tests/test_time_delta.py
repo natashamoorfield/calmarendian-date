@@ -1,7 +1,7 @@
 import unittest
 from dataclasses import astuple
 
-from npm_calmarendian_date import CalmarendianTimeDelta
+from npm_calmarendian_date import CalmarendianTimeDelta, CalmarendianDate
 from npm_calmarendian_date.exceptions import CalmarendianDateError
 from npm_calmarendian_date.time_delta import CarryForwardDataBlock
 
@@ -184,8 +184,7 @@ class TimeDeltaTest(unittest.TestCase):
         self.assertIsInstance(delta_min, CalmarendianTimeDelta)
         self.assertIsInstance(delta_max, CalmarendianTimeDelta)
         self.assertIsInstance(delta_res, CalmarendianTimeDelta)
-        # TODO reinstate the next test once comparison methods have been implemented:
-        # self.assertTrue(delta_max > delta_min)
+        self.assertTrue(delta_max > delta_min)
         self.assertEqual(str(delta_min), "-171810100 days + 00:00:00.000001")
         self.assertEqual(str(delta_max), "171810099 days + 15:63:63.999999")
         self.assertEqual(str(delta_res), "00:00:00.000001")
@@ -202,6 +201,37 @@ class TimeDeltaTest(unittest.TestCase):
         self.assertEqual(Delta(minutes=1.0/64), Delta(seconds=1))
         self.assertEqual(Delta(seconds=0.001), Delta(milliseconds=1))
         self.assertEqual(Delta(milliseconds=0.001), Delta(microseconds=1))
+
+    def test_compare_equal_objects(self):
+        dt1 = Delta(days=1, seconds=234, microseconds=567890)
+        dt2 = Delta(days=1, seconds=234, microseconds=567890)
+        self.assertEqual(dt1, dt2)
+        self.assertTrue(dt1 <= dt2)
+        self.assertTrue(dt1 >= dt2)
+        self.assertFalse(dt1 != dt2)
+        self.assertFalse(dt1 < dt2)
+        self.assertFalse(dt1 > dt2)
+
+    def test_compare_unequal_objects(self):
+        dt1 = Delta(days=1, seconds=234, microseconds=567890)
+        data = [
+            Delta(days=12, seconds=234, microseconds=567890),
+            Delta(days=1, seconds=2345, microseconds=567890),
+            Delta(days=1, seconds=234, microseconds=678900),
+        ]
+        for dt2 in data:
+            self.assertTrue(dt1 < dt2)
+            self.assertTrue(dt2 > dt1)
+            self.assertTrue(dt1 <= dt2)
+            self.assertTrue(dt2 >= dt1)
+            self.assertTrue(dt1 != dt2)
+            self.assertTrue(dt2 != dt1)
+            self.assertFalse(dt1 == dt2)
+            self.assertFalse(dt2 == dt1)
+            self.assertFalse(dt1 > dt2)
+            self.assertFalse(dt2 < dt1)
+            self.assertFalse(dt1 >= dt2)
+            self.assertFalse(dt2 <= dt1)
 
     def test_total_seconds(self):
         data = [
@@ -305,6 +335,34 @@ class TimeDeltaBadDataTest(unittest.TestCase):
         with self.assertRaises(CalmarendianDateError):
             dt.days += 99
         self.assertEqual(0, dx[dt])
+
+    def test_bad_comparisons(self):
+        junk_data = [
+            123,
+            123.456,
+            complex(123, 456),
+            (),
+            [],
+            {},
+            "junk string",
+            CalmarendianDate(1234567)
+        ]
+        dt1 = Delta(days=12, seconds=22530, microseconds=250_000)
+
+        for garbage in junk_data:
+            self.assertEqual(dt1 == garbage, False)
+            self.assertEqual(dt1 != garbage, True)
+            self.assertEqual(garbage == dt1, False)
+            self.assertEqual(garbage != dt1, True)
+
+            self.assertRaises(TypeError, lambda: dt1 <= garbage)
+            self.assertRaises(TypeError, lambda: dt1 < garbage)
+            self.assertRaises(TypeError, lambda: dt1 > garbage)
+            self.assertRaises(TypeError, lambda: dt1 >= garbage)
+            self.assertRaises(TypeError, lambda: garbage <= dt1)
+            self.assertRaises(TypeError, lambda: garbage < dt1)
+            self.assertRaises(TypeError, lambda: garbage > dt1)
+            self.assertRaises(TypeError, lambda: garbage >= dt1)
 
 
 if __name__ == '__main__':

@@ -257,6 +257,26 @@ class CalmarendianTimeDelta(object):
             return self._compare(other) == 0
         return NotImplemented
 
+    def __le__(self, other):
+        if isinstance(other, CalmarendianTimeDelta):
+            return self._compare(other) <= 0
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, CalmarendianTimeDelta):
+            return self._compare(other) < 0
+        return NotImplemented
+
+    def __ge__(self, other):
+        if isinstance(other, CalmarendianTimeDelta):
+            return self._compare(other) >= 0
+        return NotImplemented
+
+    def __gt__(self, other):
+        if isinstance(other, CalmarendianTimeDelta):
+            return self._compare(other) > 0
+        return NotImplemented
+
     # UTILITY methods
     @staticmethod
     def split_float(x: float) -> Tuple[int, float]:
