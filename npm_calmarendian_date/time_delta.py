@@ -243,6 +243,11 @@ class CalmarendianTimeDelta(object):
             out_string = f"{self._days:+,} day{s} + {out_string}"
         return out_string
 
+    def __repr__(self):
+        dx = dict(days=self.days, seconds=self.seconds, microseconds=self.microseconds)
+        arg_strings = [f"{k}={v}" for k, v in dx.items() if v]
+        return f"CalmarendianTimeDelta({', '.join(arg_strings)})"
+
     def __hash__(self):
         """
         The object is hashed only once. After that the values of days, seconds and microseconds cannot be changed.

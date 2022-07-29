@@ -291,6 +291,24 @@ class TimeDeltaTest(unittest.TestCase):
                 self.assertEqual(1, len(dx))
                 self.assertEqual(2, dx[dt1])
 
+    def test_repr(self):
+        data = [
+            (Delta(), ''),
+            (Delta(days=12), 'days=12'),
+            (Delta(seconds=23), 'seconds=23'),
+            (Delta(microseconds=567890), 'microseconds=567890'),
+            (Delta(days=12, seconds=34), 'days=12, seconds=34'),
+            (Delta(days=12, microseconds=567890), 'days=12, microseconds=567890'),
+            (Delta(seconds=34, microseconds=0), 'seconds=34'),
+            (Delta(days=12, seconds=34, microseconds=567890), 'days=12, seconds=34, microseconds=567890'),
+        ]
+        for index, item in enumerate(data):
+            test_item = item[0]
+            expected = f"CalmarendianTimeDelta({item[1]})"
+            with self.subTest(i=index):
+                self.assertEqual(expected, repr(test_item))
+
+
 
 class TimeDeltaBadDataTest(unittest.TestCase):
     def test_bad_input_types(self):
