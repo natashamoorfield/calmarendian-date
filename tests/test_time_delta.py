@@ -39,6 +39,30 @@ class TimeDeltaBasicsTest(unittest.TestCase):
         self.assertNotEqual(self.dt0, self.dt1)
         self.assertNotEqual(self.dt2, "garbage")
 
+    def test_str(self):
+        data = [
+            (Delta(days=-2), "-2 days + 00:00:00"),
+            (Delta(days=-2, seconds=45771), "-2 days + 11:11:11"),
+            (Delta(days=-2, seconds=45771, microseconds=222000), "-2 days + 11:11:11.222000"),
+            (Delta(days=-1), "-1 day + 00:00:00"),
+            (self.dt3, "-1 day + 00:00:01.000001"),
+            (self.dt0, "00:00:00"),
+            (Delta(milliseconds=1), "00:00:00.001000"),
+            (Delta(days=0, seconds=5568), "01:23:00"),
+            (Delta(seconds=51384), "12:34:56"),
+            (Delta(days=1), "+1 day + 00:00:00"),
+            (Delta(days=2), "+2 days + 00:00:00"),
+            (self.dt1, "+1 day + 00:00:01.000001"),
+            (Delta(days=+2, seconds=28672), "+2 days + 07:00:00"),
+            (Delta(days=2, seconds=448), "+2 days + 00:07:00"),
+            (Delta(days=2, seconds=45771), "+2 days + 11:11:11"),
+            (Delta(days=2, seconds=45771, microseconds=222000), "+2 days + 11:11:11.222000"),
+        ]
+        for item in data:
+            test_item, expected = item
+            with self.subTest(dt=expected):
+                self.assertEqual(expected, str(test_item))
+
 
 class TimeDeltaTest(unittest.TestCase):
     def test_split_float(self):
@@ -120,13 +144,13 @@ class TimeDeltaTest(unittest.TestCase):
     def test_day_time_deltas(self):
         data = [
             {"input": {"days": 1},
-             "output": (1, 0, 0, "1 day + 00:00:00")},
+             "output": (1, 0, 0, "+1 day + 00:00:00")},
             {"input": {},
              "output": (0, 0, 0, "00:00:00")},
             {"input": {"days": -1},
              "output": (-1, 0, 0, "-1 day + 00:00:00")},
             {"input": {"days": 1.5},
-             "output": (1, 32768, 0, "1 day + 08:00:00")},
+             "output": (1, 32768, 0, "+1 day + 08:00:00")},
             {"input": {"days": -1.5},
              "output": (-2, 32768, 0, "-2 days + 08:00:00")},
         ]
@@ -156,9 +180,9 @@ class TimeDeltaTest(unittest.TestCase):
     def test_simple_combinations(self):
         data = [
             {"input": {"days": 1, "hours": 8},
-             "output": (1, 32768, 0, "1 day + 08:00:00")},
+             "output": (1, 32768, 0, "+1 day + 08:00:00")},
             {"input": {"days": 1, "minutes": 512},
-             "output": (1, 32768, 0, "1 day + 08:00:00")},
+             "output": (1, 32768, 0, "+1 day + 08:00:00")},
         ]
         for key, item in enumerate(data):
             with self.subTest(i=key):
@@ -185,8 +209,8 @@ class TimeDeltaTest(unittest.TestCase):
         self.assertIsInstance(delta_max, CalmarendianTimeDelta)
         self.assertIsInstance(delta_res, CalmarendianTimeDelta)
         self.assertTrue(delta_max > delta_min)
-        self.assertEqual(str(delta_min), "-171810100 days + 00:00:00.000001")
-        self.assertEqual(str(delta_max), "171810099 days + 15:63:63.999999")
+        self.assertEqual(str(delta_min), "-171,810,100 days + 00:00:00.000001")
+        self.assertEqual(str(delta_max), "+171,810,099 days + 15:63:63.999999")
         self.assertEqual(str(delta_res), "00:00:00.000001")
 
     def test_equivalences(self):

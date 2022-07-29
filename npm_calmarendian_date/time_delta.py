@@ -240,7 +240,7 @@ class CalmarendianTimeDelta(object):
             out_string = f"{out_string}.{self._microseconds:06}"
         if self._days:
             s = "" if abs(self._days) == 1 else "s"
-            out_string = f"{self._days} day{s} + {out_string}"
+            out_string = f"{self._days:+,} day{s} + {out_string}"
         return out_string
 
     def __hash__(self):
