@@ -301,13 +301,27 @@ class TimeDeltaTest(unittest.TestCase):
             (Delta(days=12, microseconds=567890), 'days=12, microseconds=567890'),
             (Delta(seconds=34, microseconds=0), 'seconds=34'),
             (Delta(days=12, seconds=34, microseconds=567890), 'days=12, seconds=34, microseconds=567890'),
+            (Delta(seconds=65_536), 'days=1')
         ]
         for index, item in enumerate(data):
-            test_item = item[0]
+            test_item_repr = repr(item[0])
             expected = f"CalmarendianTimeDelta({item[1]})"
             with self.subTest(i=index):
-                self.assertEqual(expected, repr(test_item))
+                self.assertTrue(test_item_repr.startswith("CalmarendianTimeDelta"))
+                self.assertEqual(expected, test_item_repr)
 
+    def test_new_from_repr(self):
+        data = [
+            Delta(days=1, seconds=2345, microseconds=678900),
+            Delta.maximum(),
+            Delta.minimum(),
+            Delta(days=-171_810_100, seconds=1),
+            Delta(microseconds=-1)
+        ]
+        for index, test_item in enumerate(data):
+            new_item = eval(repr(test_item))
+            with self.subTest(i=index):
+                self.assertEqual(test_item, eval(repr(test_item)))
 
 
 class TimeDeltaBadDataTest(unittest.TestCase):
