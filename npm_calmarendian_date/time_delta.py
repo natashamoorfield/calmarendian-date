@@ -26,13 +26,26 @@ class CarryForwardDataBlock:
         The magic of the divmod function ensures that all negative microsecond and second values bubble up to the
         day value, ensuring that there is only one representation for any given time-delta.
         """
-        self.microseconds = round(self.microseconds)
+        self.microseconds = self.round_half_away_from_zero()
 
         extra_seconds, self.microseconds = divmod(self.microseconds, CDateConfig.MICROSECONDS_per_SECOND)
         self.seconds += extra_seconds
 
         extra_days, self.seconds = divmod(self.seconds, CDateConfig.SECONDS_per_DAY)
         self.days += extra_days
+
+    def round_half_away_from_zero(self) -> int:
+        """
+        Return the value of microseconds rounded to the nearest integer, rounding away from zero on halves.
+
+        The default behaviour of Python's built-in round function (and, by extension, the way in which Python
+        rounds its own time-deltas) is to round halves to the nearest even integer. This is not what we want.
+        """
+        wp, fp = CalmarendianTimeDelta.split_float(abs(self.microseconds))
+        if fp >= 0.5:
+            wp += 1
+        # Restore the sign before returning...
+        return wp * (-1 if self.microseconds < 0 else +1)
 
 
 class CalmarendianTimeDelta(object):
@@ -106,7 +119,7 @@ class CalmarendianTimeDelta(object):
         self._hashcode = None
         self.days = cf.days
         self.seconds = cf.seconds
-        self.microseconds = round(cf.microseconds)
+        self.microseconds = cf.microseconds
 
     # INIT sub-methods
     @staticmethod
@@ -284,7 +297,7 @@ class CalmarendianTimeDelta(object):
 
     # UTILITY methods
     @staticmethod
-    def split_float(x: float) -> Tuple[int, float]:
+    def split_float(x: RealNumber) -> Tuple[int, float]:
         """
         Wrapper function for the standard math.modf() method.
         Returns the integer and fractional parts of the argument as a two-tuple but, more intuitively, with

@@ -105,6 +105,7 @@ class TimeDeltaTest(unittest.TestCase):
     def test_process_seconds(self):
         def cfb(d: int, s: int, us: float) -> CarryForwardDataBlock:
             return CarryForwardDataBlock(d, s, us)
+
         data = [
             dict(seconds=0, cf=cfb(0, 0, 0), result=(0, 0, 0)),
             dict(seconds=0, cf=cfb(1, 0, 0), result=(1, 0, 0)),
@@ -127,10 +128,12 @@ class TimeDeltaTest(unittest.TestCase):
     def test_normalization(self):
         def cfb(d: int, s: int, us: float) -> CarryForwardDataBlock:
             return CarryForwardDataBlock(d, s, us)
+
         data = [
             dict(cf=cfb(0, 0, 0), result=(0, 0, 0)),
             dict(cf=cfb(0, 0, 1), result=(0, 0, 1)),
             dict(cf=cfb(0, 0, 1.7), result=(0, 0, 2)),
+            dict(cf=cfb(0, 0, 2.5), result=(0, 0, 3)),
             dict(cf=cfb(0, 0, -1), result=(-1, 65535, 999999)),
             dict(cf=cfb(0, 0, 1500000), result=(0, 1, 500000)),
             dict(cf=cfb(0, -65535, 2500000), result=(-1, 3, 500000)),
@@ -140,6 +143,40 @@ class TimeDeltaTest(unittest.TestCase):
                 cf = item["cf"]
                 cf.normalize()
                 self.assertTupleEqual(item["result"], astuple(cf))
+
+    def test_microsecond_rounding(self):
+        """
+        Do not forget that we are using round halves away from zero...
+        """
+        data = [
+            (Delta(), 0),
+            (Delta(milliseconds=0.4 / 1000), 0),
+            (Delta(milliseconds=-0.4 / 1000), 0),
+            (Delta(milliseconds=0.5 / 1000), 1),  # Round half away from zero
+            (Delta(milliseconds=-0.5 / 1000), -1),  # Round half away from zero
+            (Delta(milliseconds=0.6 / 1000), 1),
+            (Delta(milliseconds=-0.6 / 1000), -1),
+            (Delta(milliseconds=1.5 / 1000), 2),  # Round half away from zero
+            (Delta(milliseconds=-1.5 / 1000), -2),  # Round half away from zero
+            (Delta(seconds=0.5 / 1_000_000), 1),
+            (Delta(seconds=-0.5 / 1_000_000), -1),
+            (Delta(seconds=1 / 128), 7813),
+            (Delta(seconds=-1 / 128), -7813),
+            (Delta(days=0.25 / 65_536_000_000), 0),
+            (Delta(days=0.5 / 65_536_000_000), 1),
+            (Delta(days=0.75 / 65_536_000_000), 1),
+            (Delta(days=-0.25 / 65_536_000_000), 0),
+            (Delta(days=-0.5 / 65_536_000_000), -1),
+            (Delta(days=-0.75 / 65_536_000_000), -1),
+            (Delta(seconds=1.234_567_8, microseconds=31.8), 1_234_600),
+            (Delta(days=1.234_567_8 / 65536, microseconds=31.8), 1_234_600),
+            (Delta(days=1.234_567_8 / 65536, seconds=1.234_567_8), 2_469_136),
+        ]
+        for index, item in enumerate(data):
+            test_item: Delta = item[0]
+            expected = Delta(microseconds=item[1])
+            with self.subTest(i=index):
+                self.assertEqual(expected, test_item)
 
     def test_day_time_deltas(self):
         data = [
@@ -220,9 +257,9 @@ class TimeDeltaTest(unittest.TestCase):
         self.assertEqual(Delta(seconds=1), Delta(milliseconds=1000))
         self.assertEqual(Delta(milliseconds=1), Delta(microseconds=1000))
 
-        self.assertEqual(Delta(days=1.0/16), Delta(hours=1))
-        self.assertEqual(Delta(hours=1.0/64), Delta(minutes=1))
-        self.assertEqual(Delta(minutes=1.0/64), Delta(seconds=1))
+        self.assertEqual(Delta(days=1.0 / 16), Delta(hours=1))
+        self.assertEqual(Delta(hours=1.0 / 64), Delta(minutes=1))
+        self.assertEqual(Delta(minutes=1.0 / 64), Delta(seconds=1))
         self.assertEqual(Delta(seconds=0.001), Delta(milliseconds=1))
         self.assertEqual(Delta(milliseconds=0.001), Delta(microseconds=1))
 
