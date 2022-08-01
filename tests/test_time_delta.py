@@ -263,6 +263,14 @@ class TimeDeltaTest(unittest.TestCase):
         self.assertEqual(Delta(seconds=0.001), Delta(milliseconds=1))
         self.assertEqual(Delta(milliseconds=0.001), Delta(microseconds=1))
 
+    def test_bool(self):
+        self.assertTrue(Delta(days=1))
+        self.assertTrue(Delta(seconds=1))
+        self.assertTrue(Delta(microseconds=1))
+        self.assertTrue(Delta(microseconds=-1))
+        self.assertFalse(Delta())
+        self.assertFalse(Delta(days=0.0))
+
     def test_compare_equal_objects(self):
         dt1 = Delta(days=1, seconds=234, microseconds=567890)
         dt2 = Delta(days=1, seconds=234, microseconds=567890)

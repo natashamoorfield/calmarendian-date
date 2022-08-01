@@ -269,6 +269,9 @@ class CalmarendianTimeDelta(object):
             self._hashcode = hash(self._get_state())
         return self._hashcode
 
+    def __bool__(self):
+        return self._get_state() != (0, 0, 0)
+
     # COMPARISON methods
     def __eq__(self, other):
         if isinstance(other, CalmarendianTimeDelta):
