@@ -65,26 +65,6 @@ class TimeDeltaBasicsTest(unittest.TestCase):
 
 
 class TimeDeltaTest(unittest.TestCase):
-    def test_split_float(self):
-        data = [
-            # (test_item, expected(whole, fractional))
-            (1.01, (1, 0.01)),
-            (-1.01, (-1, -0.01)),
-            (-101.9999999999, (-101, -0.9999999999)),
-            (0, (0, 0.0)),
-            (-0, (0, 0.0)),
-            (11, (11, 0.0)),
-            (-20, (-20, 0.0)),
-        ]
-        for item in data:
-            test_item, expected = item
-            with self.subTest(i=str(test_item)):
-                wp, fp = CalmarendianTimeDelta.split_float(test_item)
-                self.assertEqual(expected[0], wp)
-                self.assertAlmostEqual(expected[1], fp)
-                self.assertIsInstance(wp, int)
-                self.assertIsInstance(fp, float)
-
     def test_process_days(self):
         data = [
             dict(days=0, result=(0, 0, 0)),
@@ -364,7 +344,6 @@ class TimeDeltaTest(unittest.TestCase):
             Delta(microseconds=-1)
         ]
         for index, test_item in enumerate(data):
-            new_item = eval(repr(test_item))
             with self.subTest(i=index):
                 self.assertEqual(test_item, eval(repr(test_item)))
 
