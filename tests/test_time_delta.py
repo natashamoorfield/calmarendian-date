@@ -80,6 +80,7 @@ class TimeDeltaTest(unittest.TestCase):
                 cf = CalmarendianTimeDelta.process_days(item["days"])
                 self.assertEqual(item["result"][0], cf.days)
                 self.assertEqual(item["result"][1], cf.seconds)
+                # assertAlmostEqual dose not always cut the mustard.
                 self.assertEqual(item["result"][2], round(cf.microseconds))
 
     def test_process_seconds(self):
@@ -103,6 +104,7 @@ class TimeDeltaTest(unittest.TestCase):
         for index, item in enumerate(data):
             with self.subTest(i=index):
                 cf = CalmarendianTimeDelta.process_seconds(item["seconds"], item["cf"])
+                # assertAlmostEqual dose not always cut the mustard.
                 self.assertTupleEqual(item["result"], (cf.days, cf.seconds, round(cf.microseconds)))
 
     def test_normalization(self):

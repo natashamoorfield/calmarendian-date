@@ -3,7 +3,7 @@ from typing import Union, Tuple
 
 from npm_calmarendian_date.c_date_config import CDateConfig
 from npm_calmarendian_date.exceptions import CalmarendianDateError
-from npm_calmarendian_date import RealNumber, split_float
+from npm_calmarendian_date import RealNumber, split_float, round_half_away_from_zero
 
 
 @dataclass
@@ -24,26 +24,13 @@ class CarryForwardDataBlock:
         The magic of the divmod function ensures that all negative microsecond and second values bubble up to the
         day value, ensuring that there is only one representation for any given time-delta.
         """
-        self.microseconds = self.round_half_away_from_zero()
+        self.microseconds = round_half_away_from_zero(self.microseconds)
 
         extra_seconds, self.microseconds = divmod(self.microseconds, CDateConfig.MICROSECONDS_per_SECOND)
         self.seconds += extra_seconds
 
         extra_days, self.seconds = divmod(self.seconds, CDateConfig.SECONDS_per_DAY)
         self.days += extra_days
-
-    def round_half_away_from_zero(self) -> int:
-        """
-        Return the value of microseconds rounded to the nearest integer, rounding away from zero on halves.
-
-        The default behaviour of Python's built-in round function (and, by extension, the way in which Python
-        rounds its own time-deltas) is to round halves to the nearest even integer. This is not what we want.
-        """
-        wp, fp = split_float(abs(self.microseconds))
-        if fp >= 0.5:
-            wp += 1
-        # Restore the sign before returning...
-        return wp * (-1 if self.microseconds < 0 else +1)
 
 
 class CalmarendianTimeDelta(object):
