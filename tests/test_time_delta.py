@@ -292,6 +292,10 @@ class TimeDeltaTest(unittest.TestCase):
             (Delta(days=1, seconds=2345), (67881, 67881.00)),
             (Delta(days=1, seconds=2345, microseconds=678900), (67882, 67881.6789)),
             (Delta(days=-1, seconds=2345, microseconds=678900), (-63190, -63190.3211)),
+            (Delta(days=1, seconds=2345, microseconds=321100), (67881, 67881.3211)),
+            (Delta(days=-1, seconds=2345, microseconds=321100), (-63191, -63190.6789)),
+            (Delta(days=1, seconds=2345, microseconds=500_000), (67882, 67881.5)),
+            (Delta(days=-1, seconds=2345, microseconds=500_000), (-63191, -63190.5)),
             (Delta(days=100_000_000, seconds=2345, microseconds=678900), (6553600002346, 6553600002345.6789)),
         ]
         for index, item in enumerate(data):

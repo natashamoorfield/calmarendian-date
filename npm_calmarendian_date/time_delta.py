@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Union, Tuple
 
+from npm_calmarendian_date import RealNumber, split_float, round_half_away_from_zero
 from npm_calmarendian_date.c_date_config import CDateConfig
 from npm_calmarendian_date.exceptions import CalmarendianDateError
-from npm_calmarendian_date import RealNumber, split_float, round_half_away_from_zero
 
 
 @dataclass
@@ -216,16 +216,22 @@ class CalmarendianTimeDelta(object):
     def total_seconds(self, result_type: str = 'float') -> Union[int, float]:
         """
         Return the duration of the time-delta is seconds.
-        Return value can be an int (with microseconds rounded to the nearest second)
-        by specifying a return_type of 'int' or as a float (default)
-        :param result_type: Can be any of 'i', 'int', 'f', 'float', upper or lower case.
+        Return value can be an int (with microseconds rounded to the nearest second, halves away from zero)
+        by specifying a return_type of 'int' or as a float (default).
+
+        :raise CalmarendianDateError if result type (in any case) is not one of 'i', 'int', 'f' or 'float'.
         """
         rt = str(result_type).lower()
         if rt not in ['f', 'float', 'i', 'int']:
             raise CalmarendianDateError(f"TIMEDELTA total_seconds: Bad type specification '{result_type}'.")
         whole_seconds = self.days * CDateConfig.SECONDS_per_DAY + self.seconds
         if rt[0] == 'i':
-            return whole_seconds + round(self.microseconds / CDateConfig.MICROSECONDS_per_SECOND)
+            # Round half second away from zero
+            half_second = CDateConfig.MICROSECONDS_per_SECOND // 2
+            if ((self.days < 0 and self.microseconds > half_second) or
+                    (self.days >= 0 and self.microseconds >= half_second)):
+                return whole_seconds + 1
+            return whole_seconds
         us = whole_seconds * CDateConfig.MICROSECONDS_per_SECOND + self.microseconds
         return us / CDateConfig.MICROSECONDS_per_SECOND
 
