@@ -19,7 +19,7 @@ Day 1 of the Calendar of Lorelei is Day 1 of Week 1 of Season 1 of Cycle 1 (usua
 
 Day Zero is the day before Day 1 and is the last day of Cycle Zero.
 
-## Default Constructor
+### Default Constructor
 ```
 class npm_calmarendian_date.CalmarendianDate(
     ordinal: int,
@@ -39,7 +39,7 @@ If an argument outside this range is given, a `CalmarendianDateError` is raised.
 
 The closest CalmarendianDate equivalent of the `date.date(year, month, day` default constructor is the class method `CalmarendianDate.from_numbers(gc, c, s, w, d)`.
 
-## Alternative Constructors
+### Alternative Constructors
 
 ```
 classmethod CalmarendianDate.today()
@@ -89,19 +89,19 @@ classmethod CalmarendianDate.max_date()
 ```
 In the Gregorian `date` class this is implemented as a class attribute `date.max`; we will be implementing it as a class method, equivalent to `CalmarendianDate(CDateConfig.MAX_ADR)`.
 
-## Class Attributes
+### Class Attributes
 ```
 CalmarendianDate.resolution
 ```
-The smallest possible difference between non-equal date objects, which is one day, represented by `CalmarendianTimeDelta(day=1)`.
+The smallest possible difference between non-equal date objects, which is one day, represented by `CalmarendianTimeDelta(days=1)`.
 
-## Instance Attributes
+### Instance Attributes
 
 The `year`, `month` and `day` integer attributes have no direct equivalents in a `CalmarendianDate` object. Instead, the primary instance attribute is the absolute day reference (a private attribute) and the derived attributes `grand_cycle`, `cycle`, `season`, `week` and `day`, which, in turn are instances of the various date element classes `GrandCycle`, `CycleInGrandCydle`, `Season`, `Week` and `Day` respectively.
 
 The Calmarendian analogues of `date.year`, `date.month` and `date.day` are thus `CalmarendianDate.grand_cycle.number`, `CalmarendianDate.cycle.number`, `CalmarendianDate.season.number`, `CalmarendianDate.week.number` and `CalmarendianDate.day.number`.
 
-## Instance Properties
+### Instance Properties
 
 ```
 CalmareandianDate.adr
@@ -113,14 +113,14 @@ CalmareandianDate.apocalypse_reckoning
 ```
 Return the ordinal apocalypse reckoning reference of the date, where the date 777-7-03-1 (Monday, Week 3 of Onset 777) has ordinal 1.
 
-## Supported Operators
-### Comparators
+### Supported Operators
+#### Comparators
 Comparison operators have been fully implemented. Two `CalmarendianDate` objects are said to be equal to one another if and only if they represent the same date on the Calendar of Lorelei. `date1` is said to be less than `date2` if and only if it falls before `date2` on the Calendar of Lorelei.
 
-### Addition and Subtraction
+#### Addition and Subtraction
 Addition and subtraction operators are not being implemented in version 1.0.0.
 
-## Instance Methods
+### Instance Methods
 ```
 CalmarendianDate.replace(
     grand_cycle: int = self.grand_cycle.number,
@@ -173,3 +173,6 @@ This method will not be implemented. There is, of course, no underlying C equiva
 CalmarendianDate.strftime(format: str)
 ```
 Return a string representation of the date, controlled by an explicit format string. Format codes referring to hours, minutes or seconds will return 0 values. The complete list of formatting directives is not yet defined.
+
+## `CalmarendianTimeDelta` Class
+The time-delta class and time-delta functionality are not being implemented in v1.0.0 of `npm_calmarendian_date` but the `CalmarendianTimeDelta` class needs to exist to be able to set the `CalmarendianDate.resolution` attribute with a time-delta object.
