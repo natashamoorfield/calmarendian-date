@@ -3,6 +3,7 @@ from functools import total_ordering
 from math import floor
 from typing import Tuple, Optional
 
+from npm_calmarendian_date import CalmarendianTimeDelta
 from npm_calmarendian_date.c_date_config import CDateConfig
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
 from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateDomainError
@@ -27,6 +28,9 @@ class CalmarendianDate(object):
     Calendar. In particular, CalmarendianDate naively assumes that its calendar always was
     (and always will be) in effect even though it demonstrably was not.
     """
+
+    resolution = CalmarendianTimeDelta(days=1)
+    """The smallest possible difference between two non-equal CalmarendianDate objects."""
 
     def __init__(self, new_adr: int):
         self.adr = new_adr
