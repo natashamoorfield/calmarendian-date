@@ -1,14 +1,16 @@
 import unittest
 from collections import namedtuple
-
-from npm_calmarendian_date.calmarendian_date import CalmarendianDate, EraMarker
-from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
-from npm_calmarendian_date.exceptions import CalmarendianDateError
-from npm_calmarendian_date.c_date_config import CDateConfig
 from typing import Any
 
+from npm_calmarendian_date import CalmarendianDate
+from npm_calmarendian_date import CalmarendianTimeDelta
+from npm_calmarendian_date.c_date_config import CDateConfig
+from npm_calmarendian_date.calmarendian_date import EraMarker
+from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
+from npm_calmarendian_date.exceptions import CalmarendianDateError
 
-class BasicADRTests(unittest.TestCase):
+
+class BasicFunctionalityTests(unittest.TestCase):
     ResultSet = namedtuple('ResultSet', 'gc c s w d')
 
     def test_type_error(self):
@@ -187,8 +189,13 @@ class BasicADRTests(unittest.TestCase):
         self.assertEqual("777-3-04-5", d.common_symbolic_notation(era_marker="BH"))
         self.assertEqual("777-3-04-5 CE", d.common_symbolic_notation(era_marker="ce"))
 
+    def test_resolution(self):
+        self.assertIsInstance(CalmarendianDate.resolution, CalmarendianTimeDelta)
+        self.assertTupleEqual((1, 0, 0), CalmarendianDate.resolution._get_state())
+        self.assertEqual("+1 day + 00:00:00", str(CalmarendianDate.resolution) )
 
-class CreateFromFactoriesTests(unittest.TestCase):
+
+class SecondaryConstructorsTests(unittest.TestCase):
     def test_create_from_objects(self):
         data = [
             {
