@@ -45,4 +45,14 @@ class DateTimeStruct(object):
     When instantiating a `DateTimeStruct` object, all arguments must be supplied: there are no default values.
     This may change if we ever find a use case for these objects.
     """
+    grand_cycle: int
+    cycle: int
+    season: int
+    week: int
+    day: int
+    hour: int
+    minute: int
+    second: int
+    microsecond: int
+    tz: int
     
