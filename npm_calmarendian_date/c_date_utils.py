@@ -37,13 +37,12 @@ def round_half_away_from_zero(number: RealNumber) -> int:
 @dataclass
 class DateTimeStruct(object):
     """
-    A structure to hold the minimum possible data required to uniquely identify a date, time of date-time value.
+    A dataclass to hold the minimum possible data required to uniquely define a date or date-time value.
 
-    it is analogous to the standard Python time.time_struct named tuple (particularly in that is appears to serve
-    no real purpose) except that (i) only integer values are stored, fractional seconds are represented as
-    microseconds; (ii) there is no weekday value (in Calmarendian dates, the day-of-the-week is an integral part of
-    the date; (iii) day-of-the-cycle (equivalent to day-of-the-year) and standard time offset are omitted - they are
-    derived, not defining, data; (iv) apart from the fact that daylight saving time is utter BS in almost any
-    circumstances, on an (effectively) equinoctial planet, the concept is completely meaningless.
+    It is analogous to the Python Standard Library `time.time_struct` structure for which
+    we currently have no use; it is included only for the sake of equivalence completeness.
+    Mote that no type checking or data validation whatsoever is performed on the data.
+    When instantiating a `DateTimeStruct` object, all arguments must be supplied: there are no default values.
+    This may change if we ever find a use case for these objects.
     """
-    pass
+    

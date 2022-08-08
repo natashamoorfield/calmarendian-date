@@ -174,5 +174,30 @@ CalmarendianDate.strftime(format: str)
 ```
 Return a string representation of the date, controlled by an explicit format string. Format codes referring to hours, minutes or seconds will return 0 values. The complete list of formatting directives is not yet defined.
 
-## `CalmarendianTimeDelta` Class
+## `CalmarendianTimeDelta` Objects
 The time-delta class and time-delta functionality are not being implemented in v1.0.0 of `npm_calmarendian_date` but the `CalmarendianTimeDelta` class needs to exist to be able to set the `CalmarendianDate.resolution` attribute with a time-delta object.
+
+## `DateTimeStruct` Objects
+`npm_calmarendian_date.utilities.DateTimeStruct`
+
+A dataclass to hold the minimum possible data required to uniquely define a date or date-time value. It is analogous to the Python Standard Library `time.time_struct` structure except that:
+1. our structure does not ignore fractional seconds (microseconds); 
+2. there is no equivalent of the (derived)  `time_struct.tm_wday` value because day-of-the-week is an integral part of a Calmarendian date;
+3. there are no equivalents of the `time_struct.tm_yday` (day-of-the-year) or `time_struct.tm_gmtoff` (offset from UTC) fields because they (or their Calmarendian equivalents) are derived, not defining, data. 
+4. apart from the fact that daylight saving time is utter BS in almost _any_ context, on an (effectively) perpetually equinoctial planet like Calmarendi, the concept is meaningless.
+
+We currently have no use for this dataclass; it is included only for the sake of equivalence completeness.
+
+The fields defined by `DateTiemStruct` are:
++ `grand-cycle: int` Should take a value in `range(100)`.
++ `cycle: int` Should take a value in `[x + 1 for x in range(700)]`.
++ `season: int` Should take a value in `[x + 1 for x in range(7)]`.
++ `week: int` Should take a value in `[x + 1 for x in range(51)]`.
++ `day: int` Should take a value in `[x + 1 for x in range(8)]`.
++ `hour: int` Should take a value in `range(16)`.
++ `minute: int` Should take a value in `range(64)`.
++ `second: int` Should take a value in `range(64)`.
++ `microsecond: int` Should take a value in `range(1_000_000)`.
++ `tz: int` Should take a value in `[x - 2 for x in range(4)]`.
+
+but note that no type checking or data validation whatsoever is performed on the data. When instantiating a `DateTimeStruct` object, all arguments must be supplied: there are no default values. This may change if we ever find a use case for these objects.
