@@ -1,6 +1,6 @@
 import unittest
 from collections import namedtuple
-from dataclasses import astuple
+from dataclasses import astuple, dataclass, field
 from typing import Any
 
 from npm_calmarendian_date import CalmarendianDate
@@ -9,6 +9,64 @@ from npm_calmarendian_date.c_date_config import CDateConfig
 from npm_calmarendian_date.calmarendian_date import EraMarker
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
 from npm_calmarendian_date.exceptions import CalmarendianDateError
+
+
+@dataclass
+class DataSetOneItem:
+    adr: int
+    base_elements: tuple
+    gcn: str = field(init=False)
+
+    def __post_init__(self):
+        self.gcn = "{:02}-{:03}-{}-{:02}-{}".format(*self.base_elements[:5])
+
+
+DATA_SET_ONE = [
+    DataSetOneItem(
+        adr=CDateConfig.MIN_ADR,
+        base_elements=(0, 1, 1, 1, 1, 0, 0, 0, 0, 0)
+    ),
+    DataSetOneItem(
+        adr=-30_825,
+        base_elements=(0, 688, 4, 5, 6, 0, 0, 0, 0, 0)
+    ),
+    DataSetOneItem(
+        adr=0,
+        base_elements=(0, 700, 7, 51, 8, 0, 0, 0, 0, 0)
+    ),
+    DataSetOneItem(
+        adr=1,
+        base_elements=(1, 1, 1, 1, 1, 0, 0, 0, 0, 0)
+    ),
+    DataSetOneItem(
+        adr=1_035_926,
+        base_elements=(1, 423, 1, 23, 4, 0, 0, 0, 0, 0)
+    ),
+    DataSetOneItem(
+        adr=1_718_111,
+        base_elements=(2, 1, 1, 2, 3, 0, 0, 0, 0, 0)
+    ),
+    DataSetOneItem(
+        adr=1_905_361,
+        base_elements=(2, 77, 3, 4, 5, 0, 0, 0, 0, 0)
+    ),
+    DataSetOneItem(
+        adr=1_906_784,
+        base_elements=(2, 77, 7, 7, 7, 0, 0, 0, 0, 0)
+    ),
+    DataSetOneItem(
+        adr=CDateConfig.APOCALYPSE_EPOCH_ADR,
+        base_elements=(2, 77, 7, 2, 7, 0, 0, 0, 0, 0)
+    ),
+    DataSetOneItem(
+        adr=24_541_844,
+        base_elements=(15, 199, 7, 51, 4, 0, 0, 0, 0, 0)
+    ),
+    DataSetOneItem(
+        adr=CDateConfig.MAX_ADR,
+        base_elements=(99, 700, 7, 51, 8, 0, 0, 0, 0, 0)
+    )
+]
 
 
 class BasicFunctionalityTests(unittest.TestCase):
@@ -193,50 +251,27 @@ class BasicFunctionalityTests(unittest.TestCase):
     def test_resolution(self):
         self.assertIsInstance(CalmarendianDate.resolution, CalmarendianTimeDelta)
         self.assertTupleEqual((1, 0, 0), CalmarendianDate.resolution._get_state())
-        self.assertEqual("+1 day + 00:00:00", str(CalmarendianDate.resolution) )
+        self.assertEqual("+1 day + 00:00:00", str(CalmarendianDate.resolution))
 
     def test_to_date_time_struct(self):
-        data = [
-            (CDateConfig.MIN_ADR, (0, 1, 1, 1, 1, 0, 0, 0, 0, 0)),
-            (-30_825, (0, 688, 4, 5, 6, 0, 0, 0, 0, 0)),
-            (0, (0, 700, 7, 51, 8, 0, 0, 0, 0, 0)),
-            (1, (1, 1, 1, 1, 1, 0, 0, 0, 0, 0)),
-            (1_035_926, (1, 423, 1, 23, 4, 0, 0, 0, 0, 0)),
-            (1_718_111, (2, 1, 1, 2, 3, 0, 0, 0, 0, 0)),
-            (1_905_361, (2, 77, 3, 4, 5, 0, 0, 0, 0, 0)),
-            (1_906_784, (2, 77, 7, 7, 7, 0, 0, 0, 0, 0)),
-            (CDateConfig.APOCALYPSE_EPOCH_ADR, (2, 77, 7, 2, 7, 0, 0, 0, 0, 0)),
-            (24_541_844, (15, 199, 7, 51, 4, 0, 0, 0, 0, 0)),
-            (CDateConfig.MAX_ADR, (99, 700, 7, 51, 8, 0, 0, 0, 0, 0)),
-        ]
-        for index, item in enumerate(data):
-            test_item, expected = item
-            dx = CalmarendianDate(test_item)
+        for index, item in enumerate(DATA_SET_ONE):
+            dx = CalmarendianDate(item.adr)
             with self.subTest(i=index):
-                self.assertTupleEqual(expected, astuple(dx.to_date_time_struct()))
+                self.assertTupleEqual(item.base_elements, astuple(dx.to_date_time_struct()))
 
 
 class SecondaryConstructorsTests(unittest.TestCase):
-    def test_create_from_objects(self):
-        data = [
-            {
-                "input": {
-                    "grand_cycle": GrandCycle(1),
-                    "cycle": CycleInGrandCycle(423),
-                    "season": Season(1),
-                    "week": Week(23, Season(1)),
-                    "day": Day(4, Week(23, Season(1)), CycleInGrandCycle(423))
-                },
-                "result": {
-                    "gcn": "01-423-1-23-4",
-                    "adr": 1_035_926
-                }
-            }
-        ]
-        for item in data:
-            d = CalmarendianDate.from_objects(**item["input"])
-            self.assertEqual(item["result"]["gcn"], d.gcn())
-            self.assertEqual(item["result"]["adr"], d.adr)
+    def test_new_from_objects(self):
+        for index, item in enumerate(DATA_SET_ONE):
+            gc = GrandCycle(item.base_elements[0])
+            c = CycleInGrandCycle(item.base_elements[1])
+            s = Season(item.base_elements[2])
+            w = Week(item.base_elements[3], s)
+            d = Day(item.base_elements[4], w, c)
+            dx = CalmarendianDate.from_objects(gc, c, s, w, d)
+            with self.subTest(i=index):
+                self.assertEqual(item.adr, dx.adr)
+                self.assertEqual(item.gcn, dx.gcn())
 
     def test_create_from_numbers(self):
         data = [
