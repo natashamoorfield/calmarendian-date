@@ -200,4 +200,4 @@ The fields defined by `DateTiemStruct` are:
 + `microsecond: int` Should take a value in `range(1_000_000)`.
 + `tz: int` Should take a value in `[x - 2 for x in range(4)]`.
 
-but note that no type checking or data validation whatsoever is performed on the data. When instantiating a `DateTimeStruct` object, all arguments must be supplied: there are no default values. This may change if we ever find a use case for these objects.
+but note that no type checking or data validation whatsoever is performed on the data. When instantiating a `DateTimeStruct` object, the time elements can be omitted and will default to zero. All this may change if we ever find a use case for these objects.
