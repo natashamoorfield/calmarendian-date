@@ -1,5 +1,6 @@
 import unittest
 from collections import namedtuple
+from dataclasses import astuple
 from typing import Any
 
 from npm_calmarendian_date import CalmarendianDate
@@ -193,6 +194,26 @@ class BasicFunctionalityTests(unittest.TestCase):
         self.assertIsInstance(CalmarendianDate.resolution, CalmarendianTimeDelta)
         self.assertTupleEqual((1, 0, 0), CalmarendianDate.resolution._get_state())
         self.assertEqual("+1 day + 00:00:00", str(CalmarendianDate.resolution) )
+
+    def test_to_date_time_struct(self):
+        data = [
+            (CDateConfig.MIN_ADR, (0, 1, 1, 1, 1, 0, 0, 0, 0, 0)),
+            (-30_825, (0, 688, 4, 5, 6, 0, 0, 0, 0, 0)),
+            (0, (0, 700, 7, 51, 8, 0, 0, 0, 0, 0)),
+            (1, (1, 1, 1, 1, 1, 0, 0, 0, 0, 0)),
+            (1_035_926, (1, 423, 1, 23, 4, 0, 0, 0, 0, 0)),
+            (1_718_111, (2, 1, 1, 2, 3, 0, 0, 0, 0, 0)),
+            (1_905_361, (2, 77, 3, 4, 5, 0, 0, 0, 0, 0)),
+            (1_906_784, (2, 77, 7, 7, 7, 0, 0, 0, 0, 0)),
+            (CDateConfig.APOCALYPSE_EPOCH_ADR, (2, 77, 7, 2, 7, 0, 0, 0, 0, 0)),
+            (24_541_844, (15, 199, 7, 51, 4, 0, 0, 0, 0, 0)),
+            (CDateConfig.MAX_ADR, (99, 700, 7, 51, 8, 0, 0, 0, 0, 0)),
+        ]
+        for index, item in enumerate(data):
+            test_item, expected = item
+            dx = CalmarendianDate(test_item)
+            with self.subTest(i=index):
+                self.assertTupleEqual(expected, astuple(dx.to_date_time_struct()))
 
 
 class SecondaryConstructorsTests(unittest.TestCase):

@@ -135,9 +135,9 @@ Return a date with the same value, except for those parameters given new values 
 Although CalmarendianDate objects are not strictly immutable, this method does not change the current instance, it returns a fresh object with the new value.
 
 ```
-CalmarendianDate.timetuple()
+CalmarendianDate.to_date_time_struct()
 ```
-Return an object containing all the elements needed to completely define a Calmarendian date-time object. The exact structure of this timetuple is currently _undefined_.
+An equivalent of the Gregorian `date.timetuple()` method, `CalmarendianDate.to_date_time_struct()` returns a `npm_calmarendian_date.c_date_utils.DateTimeStruct` object containing all the elements needed to completely define a Calmarendian date-time object.
 
 ```
 CalmarendianDate.toordinal(day_ref_descriptor: DayRefDescriptor)
@@ -178,7 +178,7 @@ Return a string representation of the date, controlled by an explicit format str
 The time-delta class and time-delta functionality are not being implemented in v1.0.0 of `npm_calmarendian_date` but the `CalmarendianTimeDelta` class needs to exist to be able to set the `CalmarendianDate.resolution` attribute with a time-delta object.
 
 ## `DateTimeStruct` Objects
-`npm_calmarendian_date.utilities.DateTimeStruct`
+`npm_calmarendian_date.c_date_utils.DateTimeStruct`
 
 A dataclass to hold the minimum possible data required to uniquely define a date or date-time value. It is analogous to the Python Standard Library `time.time_struct` structure except that:
 1. our structure does not ignore fractional seconds (microseconds); 

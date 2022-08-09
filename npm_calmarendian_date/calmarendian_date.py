@@ -5,6 +5,7 @@ from typing import Tuple, Optional
 
 from npm_calmarendian_date import CalmarendianTimeDelta
 from npm_calmarendian_date.c_date_config import CDateConfig
+from npm_calmarendian_date.c_date_utils import DateTimeStruct
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
 from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateDomainError
 from npm_calmarendian_date.string_conversions import DateString
@@ -312,6 +313,19 @@ class CalmarendianDate(object):
 
     def csn(self) -> str:
         return self.common_symbolic_notation()
+
+    def to_date_time_struct(self) -> DateTimeStruct:
+        """
+        Return a `DateTimeStruct` object containing all the elements needed
+        to completely define a Calmarendian date-time object.
+        """
+        return DateTimeStruct(
+            self.grand_cycle.number,
+            self.cycle.number,
+            self.season.number,
+            self.week.number,
+            self.day.number
+        )
 
     # -- DATE COMPARISON -- #
 
