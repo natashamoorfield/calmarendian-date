@@ -89,6 +89,11 @@ classmethod CalmarendianDate.max_date()
 ```
 In the Gregorian `date` class this is implemented as a class attribute `date.max`; we will be implementing it as a class method, equivalent to `CalmarendianDate(CDateConfig.MAX_ADR)`.
 
+```
+classmethod CalmarendianDate.from_date_time_struct(dts: DateTimeStruct)
+```
+Returns a CalmarendianDate corresponding to the date represented by the data in the supplied argument. This is an inverse of the `to_date_time_struct` method; it had no equivalent in the Gregorian `date` class.
+
 ### Class Attributes
 ```
 CalmarendianDate.resolution
