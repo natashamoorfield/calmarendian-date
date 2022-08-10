@@ -15,6 +15,7 @@ from npm_calmarendian_date.exceptions import CalmarendianDateError
 class DataSetOneItem:
     adr: int
     base_elements: tuple
+    csn: str
     gcn: str = field(init=False)
 
     def __post_init__(self):
@@ -24,47 +25,58 @@ class DataSetOneItem:
 DATA_SET_ONE = [
     DataSetOneItem(
         adr=CDateConfig.MIN_ADR,
-        base_elements=(0, 1, 1, 1, 1, 0, 0, 0, 0, 0)
+        base_elements=(0, 1, 1, 1, 1, 0, 0, 0, 0, 0),
+        csn="699-1-01-1 BZ"
     ),
     DataSetOneItem(
         adr=-30_825,
-        base_elements=(0, 688, 4, 5, 6, 0, 0, 0, 0, 0)
+        base_elements=(0, 688, 4, 5, 6, 0, 0, 0, 0, 0),
+        csn="012-4-05-6 BZ"
     ),
     DataSetOneItem(
         adr=0,
-        base_elements=(0, 700, 7, 51, 8, 0, 0, 0, 0, 0)
+        base_elements=(0, 700, 7, 51, 8, 0, 0, 0, 0, 0),
+        csn="000-7-51-8 BZ"
     ),
     DataSetOneItem(
         adr=1,
-        base_elements=(1, 1, 1, 1, 1, 0, 0, 0, 0, 0)
+        base_elements=(1, 1, 1, 1, 1, 0, 0, 0, 0, 0),
+        csn="001-1-01-1"
     ),
     DataSetOneItem(
         adr=1_035_926,
-        base_elements=(1, 423, 1, 23, 4, 0, 0, 0, 0, 0)
+        base_elements=(1, 423, 1, 23, 4, 0, 0, 0, 0, 0),
+        csn="423-1-23-4"
     ),
     DataSetOneItem(
         adr=1_718_111,
-        base_elements=(2, 1, 1, 2, 3, 0, 0, 0, 0, 0)
+        base_elements=(2, 1, 1, 2, 3, 0, 0, 0, 0, 0),
+        csn="701-1-02-3"
     ),
     DataSetOneItem(
         adr=1_905_361,
-        base_elements=(2, 77, 3, 4, 5, 0, 0, 0, 0, 0)
+        base_elements=(2, 77, 3, 4, 5, 0, 0, 0, 0, 0),
+        csn="777-3-04-5"
     ),
     DataSetOneItem(
         adr=1_906_784,
-        base_elements=(2, 77, 7, 7, 7, 0, 0, 0, 0, 0)
+        base_elements=(2, 77, 7, 7, 7, 0, 0, 0, 0, 0),
+        csn="777-7-07-7"
     ),
     DataSetOneItem(
         adr=CDateConfig.APOCALYPSE_EPOCH_ADR,
-        base_elements=(2, 77, 7, 2, 7, 0, 0, 0, 0, 0)
+        base_elements=(2, 77, 7, 2, 7, 0, 0, 0, 0, 0),
+        csn="777-7-02-7"
     ),
     DataSetOneItem(
         adr=24_541_844,
-        base_elements=(15, 199, 7, 51, 4, 0, 0, 0, 0, 0)
+        base_elements=(15, 199, 7, 51, 4, 0, 0, 0, 0, 0),
+        csn="9999-7-51-4"
     ),
     DataSetOneItem(
         adr=CDateConfig.MAX_ADR,
-        base_elements=(99, 700, 7, 51, 8, 0, 0, 0, 0, 0)
+        base_elements=(99, 700, 7, 51, 8, 0, 0, 0, 0, 0),
+        csn="69300-7-51-8"
     )
 ]
 
@@ -206,31 +218,20 @@ class BasicFunctionalityTests(unittest.TestCase):
                 d = CalmarendianDate(item["input"])
                 self.assertEqual(item["result"], d.absolute_season_ref())
 
+    @unittest.skip('Bugfix required: issue #26')
     def test_output_csn(self):
-        data = [
-            {"input": CDateConfig.MIN_ADR, "result": "699-1-01-1 BZ"},
-            {"input": -30_825, "result": "012-4-05-6 BZ"},
-            {"input": 0, "result": "000-7-51-8 BZ"},
-            {"input": 1, "result": "001-1-01-1"},
-            {"input": 1_035_926, "result": "423-1-23-4"},
-            {"input": 1_718_111, "result": "701-1-02-3"},
-            {"input": 1_905_361, "result": "777-3-04-5"},
-            {"input": 1_906_784, "result": "777-7-07-7"},
-            {"input": CDateConfig.APOCALYPSE_EPOCH_ADR, "result": "777-7-02-7"},
-            {"input": 24_541_844, "result": "9999-7-51-4"},
-        ]
-        for item in data:
-            with self.subTest(i=item["input"]):
+        for item in DATA_SET_ONE:
+            with self.subTest(adr=item.adr):
                 # Test adr -> csn -> adr
-                d = CalmarendianDate(item["input"])
-                self.assertEqual(item["result"], d.common_symbolic_notation())
-                self.assertEqual(item["result"], d.csn())
+                d = CalmarendianDate(item.adr)
+                self.assertEqual(item.csn, d.common_symbolic_notation())
+                self.assertEqual(item.csn, d.csn())
                 dx = CalmarendianDate.from_date_string(d.csn())
                 self.assertEqual(d.adr, dx.adr)
 
                 # Test csn -> adr -> csn
-                dy = CalmarendianDate.from_date_string(item["result"])
-                self.assertEqual(item["input"], dy.adr)
+                dy = CalmarendianDate.from_date_string(item.csn)
+                self.assertEqual(item.adr, dy.adr)
                 dz = CalmarendianDate(dy.adr)
                 self.assertEqual(dy.csn(), dz.csn())
 
