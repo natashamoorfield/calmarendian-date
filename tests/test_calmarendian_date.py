@@ -6,6 +6,7 @@ from typing import Any
 from npm_calmarendian_date import CalmarendianDate
 from npm_calmarendian_date import CalmarendianTimeDelta
 from npm_calmarendian_date.c_date_config import CDateConfig
+from npm_calmarendian_date.c_date_utils import DateTimeStruct
 from npm_calmarendian_date.calmarendian_date import EraMarker
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
 from npm_calmarendian_date.exceptions import CalmarendianDateError
@@ -326,6 +327,33 @@ class SecondaryConstructorsTests(unittest.TestCase):
         for item in data:
             d = CalmarendianDate.from_date_string(item["date_string"])
             self.assertEqual(item["result"], d.adr)
+
+    def test_from_time_date_struct(self):
+        for item in DATA_SET_ONE:
+            dts = DateTimeStruct(*item.base_elements)
+            d0 = CalmarendianDate.from_date_time_struct(dts)
+            d1 = CalmarendianDate(item.adr)
+            d2 = CalmarendianDate.from_date_time_struct(d1.to_date_time_struct())
+            expected = item.adr
+            with self.subTest(i=item.csn):
+                # test dts -> CalDate -> dts
+                self.assertEqual(expected, d0.adr)
+                self.assertEqual(d0, d1)
+                self.assertEqual(dts, d0.to_date_time_struct())
+                # test CalDate -< dts -> CalDAte
+                self.assertEqual(dts, d1.to_date_time_struct())
+                self.assertEqual(d1, d2)
+                self.assertEqual(expected, d2.adr)
+
+    def test_from_bad_date_time_struct(self):
+        data = [
+            (2, 77, 7, 2, 7, 0, 0, 0, 0, 0),
+            "junk"
+        ]
+        for index, item in enumerate(data):
+            with self.subTest(i=index):
+                with self.assertRaises(CalmarendianDateError):
+                    CalmarendianDate.from_date_time_struct(item)
 
 
 class ColloquialDateTests(unittest.TestCase):

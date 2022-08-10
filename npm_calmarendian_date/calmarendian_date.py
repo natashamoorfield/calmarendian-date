@@ -1,3 +1,4 @@
+from dataclasses import astuple
 from enum import Enum
 from functools import total_ordering
 from math import floor
@@ -153,6 +154,22 @@ class CalmarendianDate(object):
         :return: A CalmarendianDate object.
         """
         return cls.from_apocalypse_reckoning(1)
+
+    @classmethod
+    def from_date_time_struct(cls, dts: DateTimeStruct):
+        """
+        Return a CalmarendianDate object corresponding to the date held in the
+        supplied DateTimeStruct.
+
+        This method is the inverse of to_date_time_struct().
+
+        An exception will be raised here if the argument supplied is not a DateTimeStruct.
+        An exception will be raised by the nested constructors if the data
+        in the dts argument does not represent a valid Calmarendian date.
+        """
+        if isinstance(dts, DateTimeStruct):
+            return cls.from_numbers(*astuple(dts)[:5])
+        raise CalmarendianDateError(f"DATE: A DateTimeStruct was expected, not '{type(dts).__name__}'.")
 
     @staticmethod
     def sanitized_adr(value: int, desc: DayRefDescriptor) -> int:
