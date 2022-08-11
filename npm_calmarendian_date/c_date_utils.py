@@ -1,7 +1,8 @@
 """
-Common utility functions used in various parts of the library.
+Common utility functions and classes used in various parts of the library.
 """
 import math
+from dataclasses import dataclass
 from typing import Union, Tuple
 
 RealNumber = Union[int, float]
@@ -31,3 +32,29 @@ def round_half_away_from_zero(number: RealNumber) -> int:
         wp += 1
     # Restore the sign before returning...
     return wp * (-1 if number < 0 else +1)
+
+
+@dataclass(frozen=True)
+class DateTimeStruct(object):
+    """
+    A dataclass to hold the minimum possible data required to uniquely define a date or date-time value.
+
+    It is analogous to the Python Standard Library `time.time_struct` data structure.
+    We currently have no use for this class;
+    it is included only for the sake of equivalence completeness.
+
+    Note that no type checking or data validation whatsoever is performed on the data.
+    When instantiating a `DateTimeStruct` object, the time elements can be omitted and will default to zero.
+    All this may change if we ever find a use case for these objects.
+    """
+    grand_cycle: int
+    cycle: int
+    season: int
+    week: int
+    day: int
+    hour: int = 0
+    minute: int = 0
+    second: int = 0
+    microsecond: int = 0
+    tz: int = 0
+    
