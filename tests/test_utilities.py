@@ -55,8 +55,11 @@ class DateTimeStructTests(unittest.TestCase):
     def test_basic_instantiation(self):
         data = [
             (DateTimeStruct(2, 77, 7, 7, 7, 0, 1, 23, 456789, -2), (2, 77, 7, 7, 7, 0, 1, 23, 456789, -2)),
+            # Any or all of the time elements can be omitted:
             (DateTimeStruct(2, 34, 5, 6, 7), (2, 34, 5, 6, 7, 0, 0, 0, 0, 0)),
-            (DateTimeStruct(2, 34, 5, 6, 17), (2, 34, 5, 6, 17, 0, 0, 0, 0, 0)),  # Works with junk values
+            (DateTimeStruct(2, 34, 5, 6, 7, second=32), (2, 34, 5, 6, 7, 0, 0, 32, 0, 0)),
+            # Should work with junk values - no data validation is performed:
+            (DateTimeStruct(2, 34, 5, 6, 17), (2, 34, 5, 6, 17, 0, 0, 0, 0, 0)),
         ]
         for index, item in enumerate(data):
             test_item, expected = item
