@@ -219,7 +219,6 @@ class BasicFunctionalityTests(unittest.TestCase):
                 d = CalmarendianDate(item["input"])
                 self.assertEqual(item["result"], d.absolute_season_ref())
 
-    @unittest.skip('Bugfix required: issue #26')
     def test_output_csn(self):
         for item in DATA_SET_ONE:
             with self.subTest(adr=item.adr):

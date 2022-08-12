@@ -23,7 +23,7 @@ class CDateConfig(object):
 
     # Regex representation of Grand Cycle and Common symbolic Notations
     GCN_DATE_STRING_RE = re.compile(r'^(\d{2})-([0-7]\d{2})-([1-7])-([0-5]\d)-([1-8])$')
-    CSN_DATE_STRING_RE = re.compile(r'^([1-9]?\d{3})-([1-7])-([0-5]\d)-([1-8]) *(BZ|BH|CE)?$', re.IGNORECASE)
+    CSN_DATE_STRING_RE = re.compile(r'^((?:[1-9]|[1-6]\d)?\d{3})-([1-7])-([0-5]\d)-([1-8]) *(BZ|BH|CE)?$', re.IGNORECASE)
 
     # Epoch for Apocalypse Reckoning (Day Zero (AR 0)) is 777-7-02-7.
     # Note that Day One of the Apocalypse (AR 1),
