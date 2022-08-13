@@ -56,6 +56,9 @@ class CSNStringConversionTests(unittest.TestCase):
         # An out of domain week number
         with self.assertRaisesRegex(CalmarendianDateFormatError, "DATE STRING: '100-1-63-4'"):
             DateString('100-1-63-4')
+        # Whilst a four digit cycle number is not illegal, padding to four digits is:
+        with self.assertRaises(CalmarendianDateFormatError):
+            DateString('0777-1-23-4')
 
     def test_dubious_era_markers(self):
         with self.assertWarns(UserWarning) as my_warning:
