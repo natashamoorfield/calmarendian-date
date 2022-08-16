@@ -64,20 +64,9 @@ classmethod CalmarendianDate.fromisoformat(date_string: str)
 This constructor will not be implemented: "iso format" has no meaning in a calmarendian context. The equivalent constructor is `CalmarendianDate.from_date_string(date_string: str)`.
 
 ```
-classmethod CalmarendianDate.from_day_in_season(
-    cycle: int,
-    season: int,
-    day-in-season: int,
-    era_marker: Union[str, EraMarker] = EraMarker.CE
-)
+classmethod CalmarendianDate.from_day_in_season(...)
 ```
-Day-in-Season notation (DSN) is a notation which merges the day-in-week and week-in-season values into a single day-in-season value so that, for example, Tuesday, Week 2 of Onset 777 becomes 9 Onset 777. This is to mirror the notation used in the WA Chronology feature rather than being an alternative notation used by Calmarendians themselves.
-
-*Note that while the World Anvil Chronicle feature can replicate the three leap days of every seventh festival, it (currently) has no way of adding the eighth Festival (leap) day that is added to every 700th cycle. This will cause a discrepancy between most dates in the WA Chronicles and a properly implemented DSN here. It will be one day during our period of interest (Grand Cycle 2) and can be compensated for.  It does mean that nothing could ever happen on Festival 8, but why would it? Everyone will be blind drunk after the previous seven straight days of partying!*
-
-Whilst not an exact like-for-like, this should be treated as the CalmarendianDate equivalent of the Gregorian `date.fromisocalendar` method.
-
-It shall have an inverse method: `CalmarendianDate.day_in_season`.
+As an inverse ot the `CalmarendianDate.day_in_season()` method, this constructor is not implemented directly. Instead, a DSN date-string can be passed to the generic `CalmarendianDate.from_date_string` constructor. Whilst not an exact like-for-like, this option should be treated as the CalmarendianDate equivalent of the Gregorian `date.fromisocalendar` method.
 
 ```
 classmethod CalmarendianDate.min_date()
@@ -160,7 +149,11 @@ These methods will not be implemented: they have no real equivalence in the Cale
 ```
 CalmarendianDate.day_in_season()
 ```
-Return a named tuple object with four components: `cycle`, `season`, `day`, `era_marker`. This is the inverse of `CalmarendianDate.from_day_in_season`, thus for any date object d: `CalmarendianDate.from_day_in_season(*d.day_in_season()) == d`. Whilst not an exact like-for-like, this method should be treated as the CalmarendianDate equivalent of the Gregorian `date.isocalendar` method which, otherwise, has no meaningful equivalence.
+Return a day-in-season (DSN) date string. Assuming that `s` is a valid DSN date-string then the inverse method `CalmarendianDate.from_date_string()` will return a CalmarendianDate object, say `d`, for which `d.day_in_season() == s`.
+
+DSN is a notation which merges the day-in-week and week-in-season values of a Calmarendian date into a single day-in-season value so that, for example, Tuesday, Week 2 of Onset 777 becomes 9 Onset 777. This is to mirror the notation used in the WA Chronology feature rather than being an alternative notation used by Calmarendians themselves. For consistency with GCN and CSN, Festival days are treated as the 351st, 352nd, etc. days of Onset rather than part of the *sui generis* time period that Festival actually is.
+
+Whilst not an exact like-for-like, this method should be treated as the CalmarendianDate equivalent of the Gregorian `date.isocalendar` method which, otherwise, has no meaningful equivalence.
 
 
 ```
