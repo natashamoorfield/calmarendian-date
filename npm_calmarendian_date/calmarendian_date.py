@@ -79,13 +79,7 @@ class CalmarendianDate(object):
             day: Day
     ):
         """
-        Create a CalmarendianDate object from date element objects (GrandCycle, Cycle, etc.)
-        :param grand_cycle:
-        :param cycle:
-        :param season:
-        :param week:
-        :param day:
-        :return: A CalmarendianDate object.
+        Return a CalmarendianDate object constructed from date element objects (GrandCycle, Cycle, etc.)
         """
         date = cls.__new__(cls)
         date.adr = sum([
