@@ -1,4 +1,5 @@
 import unittest
+from dataclasses import astuple
 from typing import Any
 
 from npm_calmarendian_date.string_conversions import DateString
@@ -39,7 +40,7 @@ class GCNStringConversionTests(unittest.TestCase):
         ]
         for item in data:
             d = DateString(item["date_string"])
-            self.assertTupleEqual(item["result"], d.elements())
+            self.assertTupleEqual(item["result"], astuple(d.dts)[:5])
 
 
 class CSNStringConversionTests(unittest.TestCase):
@@ -64,17 +65,17 @@ class CSNStringConversionTests(unittest.TestCase):
         with self.assertWarns(UserWarning) as my_warning:
             d = DateString("400-1-23-4 CE")  # Cycle 400 is not in Current Era
         self.assertRegex(my_warning.warning.__str__(), "Current Era")
-        self.assertTupleEqual((1, 400, 1, 23, 4), d.elements())  # A warning is issued but date calculated anyway
+        self.assertTupleEqual((1, 400, 1, 23, 4), astuple(d.dts)[:5])  # A warning is issued but date calculated anyway
 
         with self.assertWarns(UserWarning) as my_warning:
             d = DateString("777-3-48-6 BH")  # Cycle 777 is not Before History
         self.assertRegex(my_warning.warning.__str__(), "Before History")
-        self.assertTupleEqual((2, 77, 3, 48, 6), d.elements())  # A warning is issued but date calculated anyway
+        self.assertTupleEqual((2, 77, 3, 48, 6), astuple(d.dts)[:5])  # A warning is issued but date calculated anyway
 
         with self.assertWarns(UserWarning) as my_warning:
             d = DateString("000-3-48-6 BH")  # Cycle 0 is not Before History
         self.assertRegex(my_warning.warning.__str__(), "BZ, not BH")
-        self.assertTupleEqual((0, 700, 3, 48, 6), d.elements())  # A warning is issued but date calculated anyway
+        self.assertTupleEqual((0, 700, 3, 48, 6), astuple(d.dts)[:5])  # A warning is issued but date calculated anyway
 
     def test_cycle_conversion(self):
         data = [
@@ -100,7 +101,7 @@ class CSNStringConversionTests(unittest.TestCase):
         ]
         for item in data:
             d = DateString(item["date_string"])
-            self.assertTupleEqual(item["result"], (d.gc, d.c))
+            self.assertTupleEqual(item["result"], (d.dts.grand_cycle, d.dts.cycle))
 
     def test_good_inputs(self):
         data = [
@@ -117,7 +118,7 @@ class CSNStringConversionTests(unittest.TestCase):
         ]
         for item in data:
             d = DateString(item["date_string"])
-            self.assertTupleEqual(item["result"], d.elements())
+            self.assertTupleEqual(item["result"], astuple(d.dts)[:5])
 
 
 if __name__ == '__main__':

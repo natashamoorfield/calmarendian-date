@@ -113,13 +113,13 @@ class CalmarendianDate(object):
     @classmethod
     def from_date_string(cls, date_string: str):
         """
-        For a given date string in Grand Cycle Notation or Common Symbolic Notation, return the corresponding
-        CalmarendianDate object.
-        :param date_string: A date string in either Grand Cycle Notation or Common Symbolic Notation format.
-        :return: A CalmarendianDate object
+        Return a CalmarendianDate object corresponding to the date expressed as a Grand Cycle Notations (GCN) or
+        Common Symbolic Notation (CSN) string.
+
+        Passing an invalid date string to the `DateString` constructor will raise a `CalmarendianDateFormatError`.
         """
-        s = DateString(date_string)
-        return cls.from_numbers(*s.elements())
+        ds = DateString(date_string)
+        return cls.from_date_time_struct(ds.dts)
 
     @classmethod
     def from_apocalypse_reckoning(cls, apocalypse_day: int):
