@@ -1,7 +1,7 @@
 import unittest
 
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
-from npm_calmarendian_date.exceptions import CalmarendianDateError
+from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateFormatError
 
 
 class GrandCycleTest(unittest.TestCase):
@@ -140,6 +140,37 @@ class SeasonTest(unittest.TestCase):
         for item in data:
             d = Season(item["season"])
             self.assertEqual(item["result"], d.days_prior())
+
+    def test_from_name(self):
+        data = [
+            ("M", 1),
+            ("th", 2),
+            ("sPR", 3),
+            ("Perihelion", 4),
+            ("high summer", 5),
+            ("a", 6),
+            ("Ons", 7)
+        ]
+        for item in data:
+            test_input, expected = item
+            with self.subTest(i=expected):
+                self.assertEqual(expected, Season.from_name(test_input).number)
+
+    def test_from_bad_name(self):
+        data = [
+            (6, "SEASON: Name must be 'str', not 'int'."),
+            ([7], "SEASON: Name must be 'str', not 'list'."),
+            ("", "SEASON: Name cannot be an empty string."),
+            ("Z", "SEASON: Name 'Z' not recognized."),
+            ("Thaws", "SEASON: Name 'Thaws' not recognized."),
+            ("Summer", "SEASON: Name 'Summer' not recognized."),
+        ]
+        for index, item in enumerate(data):
+            test_input, expected = item
+            with self.subTest(i=index):
+                with self.assertRaises(CalmarendianDateFormatError) as cm:
+                    Season.from_name(test_input)
+                self.assertEqual(expected, cm.exception.__str__())
 
 
 class WeekTest(unittest.TestCase):

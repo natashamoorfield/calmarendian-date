@@ -13,7 +13,7 @@ from math import floor
 from typing import List, NamedTuple
 
 from npm_calmarendian_date.c_date_config import CDateConfig
-from npm_calmarendian_date.exceptions import CalmarendianDateError
+from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateFormatError
 
 
 class GrandCycle(object):
@@ -150,6 +150,32 @@ class Season(object):
 
     def __init__(self, season: int):
         self.number = self.verified_season(season)
+
+    @classmethod
+    def from_name(cls, name: str):
+        """
+        Return a Season object constructed from the name of a season.
+
+        Taking advantage of the fact that every season has a unique initial letter, any non-zero length input string
+        which (case insensitively) matches the start of a season name will be successful.
+
+        Raise a `CalmarendianDateFormatError` if the input name is not a string (that is, it is something that does not
+        have the `title` attribute) or does not match one of the seven season names.
+        """
+        try:
+            title_case_name = name.title()
+        except AttributeError:
+            em = f"SEASON: Name must be 'str', not '{name.__class__.__name__}'."
+            raise CalmarendianDateFormatError(em)
+        if len(name) == 0:
+            # Every string 'startswith' the empty string :(
+            em = "SEASON: Name cannot be an empty string."
+            raise CalmarendianDateFormatError(em)
+        for i, s in enumerate(cls.SEASON_NAMES):
+            if s.startswith(title_case_name):
+                return cls(i + 1)
+        em = f"SEASON: Name '{name}' not recognized."
+        raise CalmarendianDateFormatError(em)
 
     @staticmethod
     def verified_season(season: int) -> int:
