@@ -155,17 +155,25 @@ class Season(object):
     def from_name(cls, name: str):
         """
         Return a Season object constructed from the name of a season.
+        if the name is given as a string representing an integer between 1 and 7 return the corresponding season.
 
         Taking advantage of the fact that every season has a unique initial letter, any non-zero length input string
         which (case insensitively) matches the start of a season name will be successful.
 
         Raise a `CalmarendianDateFormatError` if the input name is not a string (that is, it is something that does not
-        have the `title` attribute) or does not match one of the seven season names.
+        have the `title` attribute) or does not match one of the seven season names or numbers.
         """
         try:
             title_case_name = name.title()
         except AttributeError:
             em = f"SEASON: Name must be 'str', not '{name.__class__.__name__}'."
+            raise CalmarendianDateFormatError(em)
+        try:
+            return cls(int(title_case_name))
+        except ValueError:
+            pass
+        except CalmarendianDateError:
+            em = f"SEASON: If specified numerically must be between 1 and 7, not {title_case_name}."
             raise CalmarendianDateFormatError(em)
         if len(name) == 0:
             # Every string 'startswith' the empty string :(

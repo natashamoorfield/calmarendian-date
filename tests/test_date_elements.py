@@ -149,11 +149,12 @@ class SeasonTest(unittest.TestCase):
             ("Perihelion", 4),
             ("high summer", 5),
             ("a", 6),
-            ("Ons", 7)
+            ("Ons", 7),
+            ("7", 7),
         ]
         for item in data:
             test_input, expected = item
-            with self.subTest(i=expected):
+            with self.subTest(i=test_input):
                 self.assertEqual(expected, Season.from_name(test_input).number)
 
     def test_from_bad_name(self):
@@ -164,6 +165,7 @@ class SeasonTest(unittest.TestCase):
             ("Z", "SEASON: Name 'Z' not recognized."),
             ("Thaws", "SEASON: Name 'Thaws' not recognized."),
             ("Summer", "SEASON: Name 'Summer' not recognized."),
+            ("8", "SEASON: If specified numerically must be between 1 and 7, not 8.")
         ]
         for index, item in enumerate(data):
             test_input, expected = item
