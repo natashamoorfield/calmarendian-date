@@ -1,4 +1,5 @@
 import unittest
+import warnings
 from dataclasses import astuple
 from typing import Any
 
@@ -119,6 +120,29 @@ class CSNStringConversionTests(unittest.TestCase):
         for item in data:
             d = DateString(item["date_string"])
             self.assertTupleEqual(item["result"], astuple(d.dts)[:5])
+
+    def test_check_era_consistency(self):
+        data = [
+            ((50, "CE"), "DATE STRING: Cycle 50 is not in Current Era"),
+            ((500, "CE"), "DATE STRING: Cycle 500 is not in Current Era"),
+            ((501, "CE"), ""),
+            ((500, "BH"), ""),
+            ((501, "BH"), "DATE STRING: Cycle 501 is not Before History"),
+            ((0, "BZ"), ""),
+            ((0, "BH"), "DATE STRING: Cycle 0 Era is BZ, not BH"),
+            ((0, "CE"), "DATE STRING: Cycle 0 is not in Current Era"),
+        ]
+        for index, item in enumerate(data):
+            test_item, expected = item
+            with self.subTest(i=index):
+                with warnings.catch_warnings(record=True) as w:
+                    DateString.check_era_consistency(*test_item)
+                    if expected:
+                        self.assertEqual(len(w), 1)
+                        self.assertIs(w[0].category, UserWarning)
+                        self.assertEqual(expected, w[0].message.__str__())
+                    else:
+                        self.assertEqual(len(w), 0, msg="No warning was expected.")
 
 
 if __name__ == '__main__':

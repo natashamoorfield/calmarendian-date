@@ -1,9 +1,9 @@
 import warnings
 
-from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateFormatError
+from npm_calmarendian_date.exceptions import CalmarendianDateFormatError
 from npm_calmarendian_date.c_date_config import CDateConfig
 from npm_calmarendian_date.c_date_utils import DateTimeStruct
-from typing import Match
+from typing import Match, Tuple, Union
 from math import ceil
 
 
@@ -54,22 +54,39 @@ class DateString(object):
         """
         Return a `DateTimeStruct` constructed from the elements of the passed Match object.
         The Match object `m` must be the positive result of matching a date string against the CSN RegEx.
+        """
+        gc, c = DateString.normalized_gcn(int(m.group(1)), m.group(5))
+        return DateTimeStruct(gc, c, int(m.group(2)), int(m.group(3)), int(m.group(4)))
 
-        Note that the process uses the date's era marker, if set to BZ, to negate the cycle value but
-        otherwise the era marker has no effect on the parsing process. A warning is raised, however, if
+    @staticmethod
+    def normalized_gcn(c: int, era: Union[str, None]) -> Tuple[int, int]:
+        """
+        Return a (grand_cycle, cycle_in_grand_cycle) pair calculated from the given (cycle, era) pair.
+
+        Note that the process uses the era marker, if set to BZ, to negate the cycle value but
+        otherwise the era marker has no effect on the parsing process.
+        A separate process `check_era_consistency` raises an appropriate warning if
         the era marker is incompatible with the given cycle number.
         """
-        c = int(m.group(1))
-        if m.group(5):
-            era = m.group(5).upper()
+        if era is not None:
+            era = era.upper()
             if era == "BZ":
                 c = -c
-            elif era == "CE" and c < 501:
-                warnings.warn(f"DATE STRING: Cycle {c} is not in Current Era", category=UserWarning, stacklevel=3)
-            elif era == "BH" and c > 500:
-                warnings.warn(f"DATE STRING: Cycle {c} is not Before History", category=UserWarning, stacklevel=3)
-            elif era == "BH" and c == 0:
-                warnings.warn(f"DATE STRING: Cycle 0 Era is BZ, not BH", category=UserWarning, stacklevel=3)
+            else:
+                DateString.check_era_consistency(c, era)
         gc = ceil(c / 700)
         c += 700 * (1 - gc)
-        return DateTimeStruct(gc, c, int(m.group(2)), int(m.group(3)), int(m.group(4)))
+        return gc, c
+
+    @staticmethod
+    def check_era_consistency(cycle: int, era_marker: str) -> None:
+        """
+        Raise a warning if the era_marker is inconsistent with the cycle number.
+        Do nothing otherwise.
+        """
+        if era_marker == "CE" and cycle < 501:
+            warnings.warn(f"DATE STRING: Cycle {cycle} is not in Current Era", category=UserWarning, stacklevel=3)
+        elif era_marker == "BH" and cycle > 500:
+            warnings.warn(f"DATE STRING: Cycle {cycle} is not Before History", category=UserWarning, stacklevel=3)
+        elif era_marker == "BH" and cycle == 0:
+            warnings.warn(f"DATE STRING: Cycle 0 Era is BZ, not BH", category=UserWarning, stacklevel=3)
