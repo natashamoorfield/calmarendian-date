@@ -7,7 +7,82 @@ from npm_calmarendian_date.string_conversions import DateString
 from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateFormatError
 
 
-class GCNStringConversionTests(unittest.TestCase):
+class VeryBasicTests(unittest.TestCase):
+    def test_basic_attribute_assignment(self):
+        data = [
+            ("777-7-07-7", ("777-7-07-7", "777-7-07-7")),
+            ("777-1-23-4  ", ("777-1-23-4  ", "777-1-23-4")),
+            (" - 777-1-23-4", (" - 777-1-23-4", "777-1-23-4")),
+            (" - 777-1-23-4--", (" - 777-1-23-4--", "777-1-23-4")),
+        ]
+        for line_item in data:
+            test_item, expected = line_item
+            with self.subTest(i=test_item):
+                ds = DateString(test_item)
+                self.assertTupleEqual(expected, (ds.original_string, ds.raw_data))
+
+
+class UtilityTests(unittest.TestCase):
+    def test_era_consistency(self):
+        data = [
+            ((50, "CE"), "DATE STRING: Cycle 50 is not in Current Era"),
+            ((500, "CE"), "DATE STRING: Cycle 500 is not in Current Era"),
+            ((501, "CE"), ""),
+            ((500, "BH"), ""),
+            ((501, "BH"), "DATE STRING: Cycle 501 is not Before History"),
+            ((0, "BZ"), ""),
+            ((0, "BH"), "DATE STRING: Cycle 0 Era is BZ, not BH"),
+            ((0, "CE"), "DATE STRING: Cycle 0 is not in Current Era"),
+        ]
+        for index, item in enumerate(data):
+            test_item, expected = item
+            with self.subTest(i=index):
+                with warnings.catch_warnings(record=True) as w:
+                    DateString.check_era_consistency(*test_item)
+                    if expected:
+                        self.assertEqual(len(w), 1)
+                        self.assertIs(w[0].category, UserWarning)
+                        self.assertEqual(expected, w[0].message.__str__())
+                    else:
+                        self.assertEqual(len(w), 0, msg="No warning was expected.")
+
+    def test_split_day_in_season(self):
+        data = [
+            # Valid day-in-season numbers
+            (1, (1, 1)),
+            (350, (50, 7)),
+            (255, (37, 3)),
+            (355, (51, 5)),
+            (358, (51, 8)),
+            # Garbage in, garbage out
+            (0, (0, 7)),
+            (360, (51, 10)),
+            (1360, (51, 1010)),
+        ]
+        for item in data:
+            test_item, expected = item
+            with self.subTest(i=item):
+                self.assertEqual(expected, DateString.split_day_in_season(test_item))
+
+
+class GeneralBadDataTests(unittest.TestCase):
+    def test_real_garbage_inputs(self):
+        data = [
+            ("garbage", "DATE STRING: 'garbage' is not a valid date string."),
+            (7, "DATE STRING must be 'str', not 'int'."),
+            (["777-7-07-7"], "DATE STRING must be 'str', not 'list'."),
+            ("", "DATE STRING '' is devoid of useful data."),
+            (" -- ", "DATE STRING ' -- ' is devoid of useful data."),
+        ]
+        for line_item in data:
+            test_item, expected = line_item
+            with self.subTest(i=test_item):
+                with self.assertRaises(CalmarendianDateFormatError) as cm:
+                    DateString(test_item)
+                self.assertEqual(expected, cm.exception.__str__())
+
+
+class GCNConversionTests(unittest.TestCase):
     def test_bad_formats(self):
         # Missing day element:
         with self.assertRaises(CalmarendianDateError):
@@ -44,23 +119,26 @@ class GCNStringConversionTests(unittest.TestCase):
             self.assertTupleEqual(item["result"], astuple(d.dts)[:5])
 
 
-class CSNStringConversionTests(unittest.TestCase):
+class CSNConversionTests(unittest.TestCase):
     def test_bad_formats(self):
-        # Missing day element:
-        with self.assertRaises(CalmarendianDateFormatError):
-            DateString('777-7-07-')
-        # Two digit cycle number:
-        with self.assertRaises(CalmarendianDateFormatError):
-            DateString('77-7-07-7')
-        # An invalid era marker
-        with self.assertRaises(CalmarendianDateFormatError):
-            DateString('100-1-23-4 AD')
-        # An out of domain week number
-        with self.assertRaisesRegex(CalmarendianDateFormatError, "DATE STRING: '100-1-63-4'"):
-            DateString('100-1-63-4')
-        # Whilst a four digit cycle number is not illegal, padding to four digits is:
-        with self.assertRaises(CalmarendianDateFormatError):
-            DateString('0777-1-23-4')
+        data = [
+            # Invalid season:
+            ("777-8-07-2", "DATE STRING: '777-8-07-2' is not a valid date string."),
+            # Two digit cycle number in an otherwise valid CSN string:
+            ("77-7-07-7", "DATE STRING: '77-7-07-7' is not a valid date string."),
+            # Invalid Era Marker
+            ("100-1-23-4 AD", "DATE STRING: '100-1-23-4 AD' is not a valid date string."),
+            # An out of domain week number
+            ("100-1-63-4", "DATE STRING: '100-1-63-4' is not a valid date string."),
+            # Whilst a four digit cycle number is not illegal, padding to four digits is:
+            ("0777-1-23-4", "DATE STRING: '0777-1-23-4' is not a valid date string."),
+        ]
+        for line_item in data:
+            test_item, expected = line_item
+            with self.subTest(i=test_item):
+                with self.assertRaises(CalmarendianDateFormatError) as cm:
+                    DateString(test_item)
+                self.assertEqual(expected, cm.exception.__str__())
 
     def test_dubious_era_markers(self):
         with self.assertWarns(UserWarning) as my_warning:
@@ -121,28 +199,12 @@ class CSNStringConversionTests(unittest.TestCase):
             d = DateString(item["date_string"])
             self.assertTupleEqual(item["result"], astuple(d.dts)[:5])
 
-    def test_check_era_consistency(self):
-        data = [
-            ((50, "CE"), "DATE STRING: Cycle 50 is not in Current Era"),
-            ((500, "CE"), "DATE STRING: Cycle 500 is not in Current Era"),
-            ((501, "CE"), ""),
-            ((500, "BH"), ""),
-            ((501, "BH"), "DATE STRING: Cycle 501 is not Before History"),
-            ((0, "BZ"), ""),
-            ((0, "BH"), "DATE STRING: Cycle 0 Era is BZ, not BH"),
-            ((0, "CE"), "DATE STRING: Cycle 0 is not in Current Era"),
-        ]
-        for index, item in enumerate(data):
-            test_item, expected = item
-            with self.subTest(i=index):
-                with warnings.catch_warnings(record=True) as w:
-                    DateString.check_era_consistency(*test_item)
-                    if expected:
-                        self.assertEqual(len(w), 1)
-                        self.assertIs(w[0].category, UserWarning)
-                        self.assertEqual(expected, w[0].message.__str__())
-                    else:
-                        self.assertEqual(len(w), 0, msg="No warning was expected.")
+
+class DSNConversionTests(unittest.TestCase):
+    # TODO Separate the CalmarendianDate DATA_SET_ONE into a global resource that can be used here.
+    # TODO Make some tests here
+    # TODO Add tests at the CalmarendianDate level, too.
+    pass
 
 
 if __name__ == '__main__':
