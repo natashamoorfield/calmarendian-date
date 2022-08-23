@@ -1,6 +1,6 @@
 import unittest
 from collections import namedtuple
-from dataclasses import astuple, dataclass, field
+from dataclasses import astuple
 from typing import Any
 
 from npm_calmarendian_date import CalmarendianDate
@@ -10,88 +10,7 @@ from npm_calmarendian_date.c_date_utils import DateTimeStruct
 from npm_calmarendian_date.calmarendian_date import EraMarker
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
 from npm_calmarendian_date.exceptions import CalmarendianDateError
-
-
-@dataclass
-class DataSetOneItem:
-    adr: int
-    base_elements: tuple
-    csn: str
-    dsn: str
-    gcn: str = field(init=False)
-
-    def __post_init__(self):
-        self.gcn = "{:02}-{:03}-{}-{:02}-{}".format(*self.base_elements[:5])
-
-
-DATA_SET_ONE = [
-    DataSetOneItem(
-        adr=CDateConfig.MIN_ADR,
-        base_elements=(0, 1, 1, 1, 1, 0, 0, 0, 0, 0),
-        csn="699-1-01-1 BZ",
-        dsn="1 Midwinter 699 BZ"
-    ),
-    DataSetOneItem(
-        adr=-30_825,
-        base_elements=(0, 688, 4, 5, 6, 0, 0, 0, 0, 0),
-        csn="012-4-05-6 BZ",
-        dsn="34 Perihelion 12 BZ"
-    ),
-    DataSetOneItem(
-        adr=0,
-        base_elements=(0, 700, 7, 51, 8, 0, 0, 0, 0, 0),
-        csn="000-7-51-8 BZ",
-        dsn="358 Onset 0 BZ"
-    ),
-    DataSetOneItem(
-        adr=1,
-        base_elements=(1, 1, 1, 1, 1, 0, 0, 0, 0, 0),
-        csn="001-1-01-1",
-        dsn="1 Midwinter 1"
-    ),
-    DataSetOneItem(
-        adr=1_035_926,
-        base_elements=(1, 423, 1, 23, 4, 0, 0, 0, 0, 0),
-        csn="423-1-23-4",
-        dsn="158 Midwinter 423"
-    ),
-    DataSetOneItem(
-        adr=1_718_111,
-        base_elements=(2, 1, 1, 2, 3, 0, 0, 0, 0, 0),
-        csn="701-1-02-3",
-        dsn="10 Midwinter 701"
-    ),
-    DataSetOneItem(
-        adr=1_905_361,
-        base_elements=(2, 77, 3, 4, 5, 0, 0, 0, 0, 0),
-        csn="777-3-04-5",
-        dsn="26 Spring 777"
-    ),
-    DataSetOneItem(
-        adr=CDateConfig.APOCALYPSE_EPOCH_ADR,
-        base_elements=(2, 77, 7, 2, 7, 0, 0, 0, 0, 0),
-        csn="777-7-02-7",
-        dsn="21 Onset 777"
-    ),
-    DataSetOneItem(
-        adr=1_906_784,
-        base_elements=(2, 77, 7, 7, 7, 0, 0, 0, 0, 0),
-        csn="777-7-07-7",
-        dsn="49 Onset 777"
-    ),
-    DataSetOneItem(
-        adr=24_541_844,
-        base_elements=(15, 199, 7, 51, 4, 0, 0, 0, 0, 0),
-        csn="9999-7-51-4",
-        dsn="354 Onset 9999"
-    ),
-    DataSetOneItem(
-        adr=CDateConfig.MAX_ADR,
-        base_elements=(99, 700, 7, 51, 8, 0, 0, 0, 0, 0),
-        csn="69300-7-51-8",
-        dsn="358 Onset 69300"
-    )
-]
+import global_data_sets as global_data
 
 
 class BasicFunctionalityTests(unittest.TestCase):
@@ -232,7 +151,7 @@ class BasicFunctionalityTests(unittest.TestCase):
                 self.assertEqual(item["result"], d.absolute_season_ref())
 
     def test_output_csn(self):
-        for item in DATA_SET_ONE:
+        for item in global_data.c_date_data:
             with self.subTest(adr=item.adr):
                 # Test adr -> csn -> adr
                 d = CalmarendianDate(item.adr)
@@ -267,7 +186,7 @@ class BasicFunctionalityTests(unittest.TestCase):
         self.assertEqual("+1 day + 00:00:00", str(CalmarendianDate.resolution))
 
     def test_to_date_time_struct(self):
-        for index, item in enumerate(DATA_SET_ONE):
+        for index, item in enumerate(global_data.c_date_data):
             dx = CalmarendianDate(item.adr)
             with self.subTest(i=index):
                 self.assertTupleEqual(item.base_elements, astuple(dx.to_date_time_struct()))
@@ -275,7 +194,7 @@ class BasicFunctionalityTests(unittest.TestCase):
 
 class SecondaryConstructorsTests(unittest.TestCase):
     def test_new_from_objects(self):
-        for index, item in enumerate(DATA_SET_ONE):
+        for index, item in enumerate(global_data.c_date_data):
             gc = GrandCycle(item.base_elements[0])
             c = CycleInGrandCycle(item.base_elements[1])
             s = Season(item.base_elements[2])
@@ -340,7 +259,7 @@ class SecondaryConstructorsTests(unittest.TestCase):
             self.assertEqual(item["result"], d.adr)
 
     def test_from_time_date_struct(self):
-        for item in DATA_SET_ONE:
+        for item in global_data.c_date_data:
             dts = DateTimeStruct(*item.base_elements)
             d0 = CalmarendianDate.from_date_time_struct(dts)
             d1 = CalmarendianDate(item.adr)
