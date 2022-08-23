@@ -12,8 +12,8 @@ class DateString(object):
     """
     The DateString Class
 
-    A class that will take a date string in Grand Cycle Notation or Common Symbolic Notation format and parse it into
-    a DateTimeStruct suitable for instantiating a CalmarendianDate object via its from_date_time_struct method.
+    A class that will take a date string in Grand Cycle Notation, Common Symbolic Notation or Day-in-Season format and
+     parse it into a DateTimeStruct for instantiating a CalmarendianDate object via its from_date_time_struct method.
     """
 
     SEP_CHARS = " -"
@@ -136,10 +136,10 @@ class DateString(object):
     @staticmethod
     def split_day_in_season(day_in_season: int) -> Tuple[int, int]:
         """
-        Return (week, day) pair from a day-in-season number.
+        Return a (week, day) pair from a day-in-season number.
 
         Note that this method works on the principle of garbage-in-garbage-out.
-        It will return results for any integer input values but, intentionally, attempts no validation.
+        It will return results for any integer input value but, intentionally, attempts no validation.
         For input values less than 1 and greater than 358 it will return values that make no sense
         in the context of Calmarendian dates.
         """
