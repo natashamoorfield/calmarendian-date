@@ -5,6 +5,7 @@ from typing import Any
 
 from npm_calmarendian_date.string_conversions import DateString
 from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateFormatError
+import global_data_sets as global_data
 
 
 class VeryBasicTests(unittest.TestCase):
@@ -201,10 +202,15 @@ class CSNConversionTests(unittest.TestCase):
 
 
 class DSNConversionTests(unittest.TestCase):
-    # TODO Separate the CalmarendianDate DATA_SET_ONE into a global resource that can be used here.
-    # TODO Make some tests here
+    def test_good_inputs(self):
+        for item in global_data.c_date_data:
+            test_item = item.dsn
+            expected = item.base_elements
+            with self.subTest(i=test_item):
+                ds = DateString(test_item)
+                self.assertTupleEqual(expected, astuple(ds.dts))
+    # TODO Make some tests here for bad and dubious data
     # TODO Add tests at the CalmarendianDate level, too.
-    pass
 
 
 if __name__ == '__main__':

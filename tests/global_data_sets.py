@@ -62,7 +62,7 @@ c_date_data = [
         adr=CDateConfig.APOCALYPSE_EPOCH_ADR,
         base_elements=(2, 77, 7, 2, 7, 0, 0, 0, 0, 0),
         csn="777-7-02-7",
-        dsn="21 Onset 777"
+        dsn="14 Onset 777"
     ),
     CDateDataItem(
         adr=1_906_784,
