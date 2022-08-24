@@ -25,7 +25,8 @@ class CDateConfig(object):
     GCN_DATE_STRING_RE = re.compile(r'^(\d{2})-([0-7]\d{2})-([1-7])-([0-5]\d)-([1-8])$')
     CSN_DATE_STRING_RE = re.compile(r'^((?:[1-9]|[1-6]\d)?\d{3})-([1-7])-([0-5]\d)-([1-8]) *(BZ|BH|CE)?$',
                                     re.IGNORECASE)
-    DSN_DATE_STRING_RE = re.compile(r"^(\d{1,3})[ -]+([A-Z]+|[1-7])[ -]+(\d{1,5})[ -]*(BZ|BH|CE)?$", re.IGNORECASE)
+    DSN_DATE_STRING_RE = re.compile(r"^(\d{1,3})[ -]+([A-Z]+(?: [A-Z]+)*|[1-7])[ -]+(\d{1,5})[ -]*(BZ|BH|CE)?$",
+                                    re.IGNORECASE)
     """
     Note that whereas GCN and CSN date strings must conform strictly to the relevant format specification, 
     there is more flexibility with DSN strings in that: 
@@ -33,7 +34,8 @@ class CDateConfig(object):
     the season can be specified as a number or a name; 
     the name can be arbitrarily shortened to its first n characters; 
     the separators can be any combination of spaces and dashes 
-    but cannot be omitted except between the cycle number and era marker. 
+    but cannot be omitted except between the cycle number and era marker.
+    Spaces that are part of the Season name are not interpreted as separators.
     """
 
     # Epoch for Apocalypse Reckoning (Day Zero (AR 0)) is 777-7-02-7.

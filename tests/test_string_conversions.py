@@ -209,6 +209,9 @@ class DSNConversionTests(unittest.TestCase):
             with self.subTest(i=test_item):
                 ds = DateString(test_item)
                 self.assertTupleEqual(expected, astuple(ds.dts))
+
+    def test_bad_inputs(self):
+        pass
     # TODO Make some tests here for bad and dubious data
     # TODO Add tests at the CalmarendianDate level, too.
 

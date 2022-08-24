@@ -14,6 +14,7 @@ class RegExTests(unittest.TestCase):
             ("123 7 777", ("123", "7", "777", None)),
             ("09 Midwinter 777CE", ("09", "Midwinter", "777", "CE")),
             ("123 thaw 777 ce", ("123", "thaw", "777", "ce")),
+            ("234 High Summer 888", ("234", "High Summer", "888", None)),
             ("123 h 776", ("123", "h", "776", None)),
             ("99-h-776", ("99", "h", "776", None)),
             ("123 Onset 777  CE", ("123", "Onset", "777", "CE")),
@@ -37,6 +38,7 @@ class RegExTests(unittest.TestCase):
             "123 8 777",
             "123 11 777",
             "123 Onset 123777",
+            "123 Mid-winter 678"
         ]
         for item in data:
             with self.subTest(i=item):

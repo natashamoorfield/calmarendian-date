@@ -53,6 +53,12 @@ c_date_data = [
         dsn="10 Midwinter 701"
     ),
     CDateDataItem(
+        adr=1_719_511,
+        base_elements=(2, 1, 5, 2, 3, 0, 0, 0, 0, 0),
+        csn="701-5-02-3",
+        dsn="10 High Summer 701"
+    ),
+    CDateDataItem(
         adr=1_905_361,
         base_elements=(2, 77, 3, 4, 5, 0, 0, 0, 0, 0),
         csn="777-3-04-5",
