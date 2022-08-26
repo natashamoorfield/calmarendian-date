@@ -286,6 +286,22 @@ class SecondaryConstructorsTests(unittest.TestCase):
                     # noinspection PyTypeChecker
                     CalmarendianDate.from_date_time_struct(item)
 
+    def test_from_dsn_string(self):
+        # TODO test_from_dsn_string
+        pass
+
+    def test_dsn_adr_dsn(self):
+        # TODO test dsn -> adr -> dsn there and back again
+        pass
+
+    def test_adr_dsn_adr(self):
+        # TODO test adr -> dsn -> adr there and back again
+        pass
+
+    def test_from_bad_dsn_string(self):
+        # TODO test_from_bad_dsn_string
+        pass
+
 
 class ColloquialDateTests(unittest.TestCase):
     @staticmethod

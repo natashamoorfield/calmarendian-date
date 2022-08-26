@@ -211,9 +211,37 @@ class DSNConversionTests(unittest.TestCase):
                 self.assertTupleEqual(expected, astuple(ds.dts))
 
     def test_bad_inputs(self):
+        # What we are looking for here are full input strings which pass RegEx matching but
+        # which fail before returning a DateTimeStruct object.
+        data = [
+            # Failures setting the gc and c components: None - RegEX matching can only yield int values for the season
+            # number and all int values can be parsed into a gc, c pair even if the result is not meaningful.
+
+            # Failures setting the s component: The only failures not caught by RedEX matching are bad season names:
+            ("123 Z 789", "SEASON: Name 'Z' not recognized."),
+            ("123 z 789 CE", "SEASON: Name 'z' not recognized."),
+            ("123 High Tor 789 CE", "SEASON: Name 'High Tor' not recognized."),
+
+            # Failures setting the w and d components: None - again any input that has passed RegEx matching will
+            # parse into an output pair even if the result is not meaningful.
+
+        ]
+        for line_item in data:
+            test_item, expected = line_item
+            with self.subTest(i=test_item):
+                with self.assertRaises(CalmarendianDateFormatError) as cm:
+                    DateString(test_item)
+                self.assertEqual(expected, cm.exception.__str__())
+
+    def test_dubious_inputs(self):
+        # TODO What we are looking for here are full input strings which pass RexEx matching and return a
+        # DateTimeStruct but onw which does not represent a valid Calmarendian date.
         pass
-    # TODO Make some tests here for bad and dubious data
-    # TODO Add tests at the CalmarendianDate level, too.
+
+    def test_era_consistency(self):
+        # TODO Test full date strings which return (valid) DateTimeStruct objects and issue a warning if the BH or CE
+        # era marker is inconsistent with the given cycle number and not otherwise.
+        pass
 
 
 if __name__ == '__main__':
