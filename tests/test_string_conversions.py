@@ -233,14 +233,22 @@ class DSNConversionTests(unittest.TestCase):
                     DateString(test_item)
                 self.assertEqual(expected, cm.exception.__str__())
 
+    def test_out_of_range_inputs(self):
+        # Test DSN dates which are valid within the infinitely extensible Calendar of Lorelei but which
+        # are not valid by the internal constraints of Grand-Cycle Notation.
+        for item in global_data.c_date_out_of_range:
+            test_item = DateString(item.dsn)
+            expected = item.base_elements
+            with self.subTest(i=item.csn):
+                self.assertTupleEqual(expected, astuple(test_item.dts))
+
     def test_dubious_inputs(self):
-        # TODO What we are looking for here are full input strings which pass RexEx matching and return a
-        # DateTimeStruct but onw which does not represent a valid Calmarendian date.
+        # TODO Test DSN dates which return a DateTimeStruct but which are not valid Calmarendian dates.
         pass
 
     def test_era_consistency(self):
-        # TODO Test full date strings which return (valid) DateTimeStruct objects and issue a warning if the BH or CE
-        # era marker is inconsistent with the given cycle number and not otherwise.
+        # TODO Test full date strings which return (valid) DateTimeStruct objects but issue a warning if the BH or CE
+        #  era marker is inconsistent with the given cycle number and not otherwise.
         pass
 
 
