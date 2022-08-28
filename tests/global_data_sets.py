@@ -114,7 +114,7 @@ c_date_out_of_range: List[CDateDataItem] = [
         exc_msg="GRAND CYCLE: -1 is an invalid input. Must be between 0 and 99 inclusive."
     ),
     CDateDataItem(
-        adr=CDateConfig.MIN_ADR + 1,
+        adr=CDateConfig.MAX_ADR + 1,
         base_elements=(100, 1, 1, 1, 1, 0, 0, 0, 0, 0),
         csn="69301-1-01-1",
         dsn="1 Midwinter 69301",

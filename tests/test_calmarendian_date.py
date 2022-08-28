@@ -24,13 +24,13 @@ class BasicFunctionalityTests(unittest.TestCase):
             s: Any = (23, 45)
             CalmarendianDate(s)
 
-    def test_out_of_range_low(self):
-        with self.assertRaises(CalmarendianDateError):
-            CalmarendianDate(-2_000_000)
-
-    def test_out_of_range_high(self):
-        with self.assertRaises(CalmarendianDateError):
-            CalmarendianDate(200_000_000)
+    def test_out_of_range(self):
+        for item in global_data.c_date_out_of_range:
+            with self.subTest(i=item.csn):
+                with self.assertRaises(item.exc_type) as cm:
+                    CalmarendianDate(item.adr)
+                expected = f"ADR: {item.adr} is out of range."
+                self.assertEqual(expected, cm.exception.__str__())
 
     def test_simple_adr_set(self):
         d = CalmarendianDate(1_234_567)
