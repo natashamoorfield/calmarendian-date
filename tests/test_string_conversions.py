@@ -3,7 +3,6 @@ import warnings
 from dataclasses import astuple
 from typing import Any
 
-from npm_calmarendian_date.c_date_utils import DateTimeStruct
 from npm_calmarendian_date.string_conversions import DateString
 from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateFormatError
 import global_data_sets as global_data
