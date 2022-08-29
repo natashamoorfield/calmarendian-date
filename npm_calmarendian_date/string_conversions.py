@@ -127,11 +127,11 @@ class DateString(object):
         Do nothing otherwise.
         """
         if era_marker == "CE" and cycle < 501:
-            warnings.warn(f"DATE STRING: Cycle {cycle} is not in Current Era", category=UserWarning, stacklevel=3)
+            warnings.warn(f"DATE STRING: Cycle {cycle} is not in Current Era.", category=UserWarning, stacklevel=3)
         elif era_marker == "BH" and cycle > 500:
-            warnings.warn(f"DATE STRING: Cycle {cycle} is not Before History", category=UserWarning, stacklevel=3)
+            warnings.warn(f"DATE STRING: Cycle {cycle} is not Before History.", category=UserWarning, stacklevel=3)
         elif era_marker == "BH" and cycle == 0:
-            warnings.warn(f"DATE STRING: Cycle 0 Era is BZ, not BH", category=UserWarning, stacklevel=3)
+            warnings.warn(f"DATE STRING: Cycle 0 Era is BZ, not BH.", category=UserWarning, stacklevel=3)
 
     @staticmethod
     def split_day_in_season(day_in_season: int) -> Tuple[int, int]:

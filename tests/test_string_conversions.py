@@ -24,28 +24,17 @@ class VeryBasicTests(unittest.TestCase):
 
 
 class UtilityTests(unittest.TestCase):
-    def test_era_consistency(self):
-        data = [
-            ((50, "CE"), "DATE STRING: Cycle 50 is not in Current Era"),
-            ((500, "CE"), "DATE STRING: Cycle 500 is not in Current Era"),
-            ((501, "CE"), ""),
-            ((500, "BH"), ""),
-            ((501, "BH"), "DATE STRING: Cycle 501 is not Before History"),
-            ((0, "BZ"), ""),
-            ((0, "BH"), "DATE STRING: Cycle 0 Era is BZ, not BH"),
-            ((0, "CE"), "DATE STRING: Cycle 0 is not in Current Era"),
-        ]
-        for index, item in enumerate(data):
-            test_item, expected = item
-            with self.subTest(i=index):
+    def test_era_consistency_ll(self):
+        for item in global_data.era_consistency_data:
+            with self.subTest(i=item.csn):
                 with warnings.catch_warnings(record=True) as w:
-                    DateString.check_era_consistency(*test_item)
-                    if expected:
-                        self.assertEqual(len(w), 1)
+                    DateString.check_era_consistency(*item.cycle_era_pair)
+                    if item.warn_msg:
+                        self.assertEqual(len(w), 1, msg="Warning expected, none raised.")
                         self.assertIs(w[0].category, UserWarning)
-                        self.assertEqual(expected, w[0].message.__str__())
+                        self.assertEqual(item.warn_msg, w[0].message.__str__())
                     else:
-                        self.assertEqual(len(w), 0, msg="No warning was expected.")
+                        self.assertEqual(len(w), 0, msg="Warning raised, none expected")
 
     def test_split_day_in_season(self):
         data = [
@@ -250,10 +239,19 @@ class DSNConversionTests(unittest.TestCase):
             with self.subTest(i=test_item):
                 self.assertTupleEqual(expected, astuple(DateString(test_item).dts))
 
-    def test_era_consistency(self):
-        # TODO Test full date strings which return (valid) DateTimeStruct objects but issue a warning if the BH or CE
+    def test_era_consistency_hl_dsn(self):
+        # Test full date strings which return (valid) DateTimeStruct objects but issue a warning if the BH or CE
         #  era marker is inconsistent with the given cycle number and not otherwise.
-        pass
+        for item in global_data.era_consistency_data:
+            with self.subTest(i=item.csn):
+                with warnings.catch_warnings(record=True) as w:
+                    DateString(item.dsn)
+                    if item.warn_msg:
+                        self.assertEqual(len(w), 1, msg="Warning expected, none raised.")
+                        self.assertIs(w[0].category, UserWarning)
+                        self.assertEqual(w[0].message.__str__(), item.warn_msg)
+                    else:
+                        self.assertEqual(len(w), 0, msg="Warning raised, none expected")
 
 
 if __name__ == '__main__':

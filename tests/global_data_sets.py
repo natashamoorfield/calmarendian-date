@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Tuple
 
 from npm_calmarendian_date.c_date_config import CDateConfig
 from npm_calmarendian_date.exceptions import CalmarendianDateError
@@ -17,6 +17,14 @@ class CDateDataItem:
 
     def __post_init__(self):
         self.gcn = "{:02}-{:03}-{}-{:02}-{}".format(*self.base_elements[:5])
+
+
+@dataclass()
+class EraConsistencyItem:
+    csn: str
+    dsn: str
+    cycle_era_pair: Tuple[int, str]
+    warn_msg: str = ""
 
 
 c_date_data: List[CDateDataItem] = [
@@ -155,5 +163,56 @@ dsn_bad_days: List[CDateDataItem] = [
         dsn="360 Aut 777",
         exc_type=CalmarendianDateError,
         exc_msg="WEEK 51 is not valid for season 6. Must be in [1..50]."
+    ),
+]
+
+era_consistency_data: List[EraConsistencyItem] = [
+    EraConsistencyItem(
+        csn="050-1-23-4 CE",
+        dsn="158 M 50 CE",
+        cycle_era_pair=(50, "CE"),
+        warn_msg="DATE STRING: Cycle 50 is not in Current Era."
+    ),
+    EraConsistencyItem(
+        csn="500-2-23-4 CE",
+        dsn="158 Thaw 500 CE",
+        cycle_era_pair=(500, "CE"),
+        warn_msg="DATE STRING: Cycle 500 is not in Current Era."
+    ),
+    EraConsistencyItem(
+        csn="500-2-23-4 BH",
+        dsn="158 Thaw 500 BH",
+        cycle_era_pair=(500, "BH"),
+        warn_msg=""
+    ),
+    EraConsistencyItem(
+        csn="501-3-23-4 CE",
+        dsn="158 spr 501 CE",
+        cycle_era_pair=(501, "CE"),
+        warn_msg=""
+    ),
+    EraConsistencyItem(
+        csn="501-3-23-4 BH",
+        dsn="158 spr 501 BH",
+        cycle_era_pair=(501, "BH"),
+        warn_msg="DATE STRING: Cycle 501 is not Before History."
+    ),
+    EraConsistencyItem(
+        csn="000-4-23-4 BZ",
+        dsn="158 P 0 BZ",
+        cycle_era_pair=(0, "Bz"),
+        warn_msg=""
+    ),
+    EraConsistencyItem(
+        csn="000-4-23-4 BH",
+        dsn="158 P 0 BH",
+        cycle_era_pair=(0, "BH"),
+        warn_msg="DATE STRING: Cycle 0 Era is BZ, not BH."
+    ),
+    EraConsistencyItem(
+        csn="000-4-23-4 CE",
+        dsn="158 P 0 CE",
+        cycle_era_pair=(0, "CE"),
+        warn_msg="DATE STRING: Cycle 0 is not in Current Era."
     ),
 ]
