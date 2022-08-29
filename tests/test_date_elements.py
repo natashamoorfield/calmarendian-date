@@ -189,11 +189,11 @@ class WeekTest(unittest.TestCase):
             Week(52, Season(7))
 
     def test_error_messages(self):
-        with self.assertRaisesRegex(CalmarendianDateError, "WEEK: 52.*season 7.*1 and 51"):
+        with self.assertRaisesRegex(CalmarendianDateError, "WEEK 52.*season 7.*1\\.\\.51"):
             Week(52, Season(7))
-        with self.assertRaisesRegex(CalmarendianDateError, "WEEK: 51.*season 6.*1 and 50"):
+        with self.assertRaisesRegex(CalmarendianDateError, "WEEK 51.*season 6.*1\\.\\.50"):
             Week(51, Season(6))
-        with self.assertRaisesRegex(CalmarendianDateError, "WEEK: 0.*season 7.*1 and 51"):
+        with self.assertRaisesRegex(CalmarendianDateError, "WEEK 0.*season 7.*1\\.\\.51"):
             Week(0, Season(7))
 
     def test_good_week(self):
@@ -244,23 +244,23 @@ class DayTest(unittest.TestCase):
     def test_error_messages(self):
         data = [
             (
-                "DAY must be in [1 .. 7] for specified week; not 0",
+                "DAY 0 is not valid for specified week. Must be in [1..7].",
                 0, 12, 4, 100
             ),
             (
-                "DAY must be in [1 .. 7] for specified week; not 8",
+                "DAY 8 is not valid for specified week. Must be in [1..7].",
                 8, 14, 5, 108
             ),
             (
-                "DAY must be in [1 .. 4] for specified week; not 5",
+                "DAY 5 is not valid for specified week. Must be in [1..4].",
                 5, 51, 7, 177
             ),
             (
-                "DAY must be in [1 .. 7] for specified week; not 8",
+                "DAY 8 is not valid for specified week. Must be in [1..7].",
                 8, 51, 7, 175
             ),
             (
-                "DAY must be in [1 .. 8] for specified week; not 9",
+                "DAY 9 is not valid for specified week. Must be in [1..8].",
                 9, 51, 7, 700
             ),
         ]

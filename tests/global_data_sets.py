@@ -130,3 +130,30 @@ c_date_out_of_range: List[CDateDataItem] = [
         exc_msg="GRAND CYCLE: 100 is an invalid input. Must be between 0 and 99 inclusive."
     ),
 ]
+
+dsn_bad_days: List[CDateDataItem] = [
+    CDateDataItem(
+        adr=0,
+        base_elements=(2, 77, 5, 0, 7, 0, 0, 0, 0, 0),
+        csn="",
+        dsn="0 High Summer 777",
+        exc_type=CalmarendianDateError,
+        exc_msg="WEEK 0 is not valid for season 5. Must be in [1..50]."
+    ),
+    CDateDataItem(
+        adr=0,
+        base_elements=(2, 77, 7, 51, 10, 0, 0, 0, 0, 0),
+        csn="",
+        dsn="360 Ons 777",
+        exc_type=CalmarendianDateError,
+        exc_msg="DAY 10 is not valid for specified week. Must be in [1..7]."
+    ),
+    CDateDataItem(
+        adr=0,
+        base_elements=(2, 77, 6, 51, 10, 0, 0, 0, 0, 0),
+        csn="",
+        dsn="360 Aut 777",
+        exc_type=CalmarendianDateError,
+        exc_msg="WEEK 51 is not valid for season 6. Must be in [1..50]."
+    ),
+]

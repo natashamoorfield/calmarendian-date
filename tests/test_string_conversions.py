@@ -3,6 +3,7 @@ import warnings
 from dataclasses import astuple
 from typing import Any
 
+from npm_calmarendian_date.c_date_utils import DateTimeStruct
 from npm_calmarendian_date.string_conversions import DateString
 from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateFormatError
 import global_data_sets as global_data
@@ -243,8 +244,12 @@ class DSNConversionTests(unittest.TestCase):
                 self.assertTupleEqual(expected, astuple(test_item.dts))
 
     def test_dubious_inputs(self):
-        # TODO Test DSN dates which return a DateTimeStruct but which are not valid Calmarendian dates.
-        pass
+        # Test DSN dates which return a DateTimeStruct but which are not valid Calmarendian dates.
+        for item in global_data.dsn_bad_days:
+            test_item = item.dsn
+            expected = item.base_elements
+            with self.subTest(i=test_item):
+                self.assertTupleEqual(expected, astuple(DateString(test_item).dts))
 
     def test_era_consistency(self):
         # TODO Test full date strings which return (valid) DateTimeStruct objects but issue a warning if the BH or CE

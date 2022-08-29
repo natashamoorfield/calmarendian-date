@@ -311,11 +311,8 @@ class Week(object):
         """
         mw = season.max_weeks()
         if not 1 <= week <= mw:
-            error_message = " ".join([
-                f"WEEK: {week} is not valid for season {season.number}.",
-                f"Must be between 1 and {mw} inc."
-            ])
-            raise CalmarendianDateError(error_message)
+            em = f"WEEK {week} is not valid for season {season.number}. Must be in [1..{mw}]."
+            raise CalmarendianDateError(em)
         return week
 
     def weekend_data(self) -> Weekend:
@@ -374,8 +371,8 @@ class Day(object):
         max_days = cycle.festival_days() if week.number == 51 else 7
         if 0 < day <= max_days:
             return day
-        error_message = f"DAY must be in [1 .. {max_days}] for specified week; not {day}"
-        raise CalmarendianDateError(error_message)
+        em = f"DAY {day} is not valid for specified week. Must be in [1..{max_days}]."
+        raise CalmarendianDateError(em)
 
     def name(self) -> str:
         """

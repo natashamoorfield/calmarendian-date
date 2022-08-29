@@ -302,6 +302,19 @@ class SecondaryConstructorsTests(unittest.TestCase):
         # TODO test_from_bad_dsn_string
         pass
 
+    def test_from_bad_dsn_day(self):
+        for item in global_data.dsn_bad_days:
+            test_item_0 = DateTimeStruct(*item.base_elements)
+            test_item_1 = item.dsn
+            expected_exc_type = item.exc_type
+            with self.subTest(i=item.dsn):
+                with self.assertRaises(expected_exc_type) as cm_0:
+                    CalmarendianDate.from_date_time_struct(test_item_0)
+                self.assertEqual(item.exc_msg, cm_0.exception.__str__())
+                with self.assertRaises(expected_exc_type) as cm_1:
+                    CalmarendianDate.from_date_string(test_item_1)
+                self.assertEqual(item.exc_msg, cm_1.exception.__str__())
+
 
 class ColloquialDateTests(unittest.TestCase):
     @staticmethod
