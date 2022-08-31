@@ -222,11 +222,20 @@ class Season(object):
         """
         return (self.number - 1) * 350
 
-    def name(self) -> str:
+    def name(self, abr: int = -1) -> str:
         """
         Return the name of the season.
+
+        If abr is negative (the default) return the full name.
+        If abr is zero, return the numeric representation of the season as a string.
+        Otherwise, return the first `abr` characters of the name.
         """
-        return self.SEASON_NAMES[self.number - 1]
+        if abr == 0:
+            return str(self.number)
+        return_name = self.SEASON_NAMES[self.number - 1]
+        if abr < 0:
+            return return_name
+        return return_name[:abr]
 
 
 class Week(object):

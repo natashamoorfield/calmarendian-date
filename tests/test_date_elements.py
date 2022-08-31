@@ -174,6 +174,27 @@ class SeasonTest(unittest.TestCase):
                     Season.from_name(test_input)
                 self.assertEqual(expected, cm.exception.__str__())
 
+    def test_return_name(self):
+        data = [
+            (1, 3, "Midwinter", "Mid", "M"),
+            (2, 2, "Thaw", "Th", "T"),
+            (3, 3, "Spring", "Spr", "S"),
+            (4, -1, "Perihelion", "Perihelion", "P"),
+            (5, 5, "High Summer", "High ", "H"),
+            (6, 6, "Autumn", "Autumn", "A"),
+            (7, 1, "Onset", "O", "O")
+       ]
+        for item in data:
+            s, abr, full_name, abbreviation, initial = item
+            season = Season(s)
+            with self.subTest(i=s):
+                self.assertEqual(s, season.number)
+                self.assertEqual(full_name, season.name())
+                self.assertEqual(abbreviation, season.name(abr))
+                self.assertEqual(initial, season.name(abr=1))
+                self.assertEqual(str(s), season.name(0))
+                self.assertEqual(full_name, season.name(-500))
+
 
 class WeekTest(unittest.TestCase):
     def test_week_too_small(self):
