@@ -116,39 +116,16 @@ class BasicFunctionalityTests(unittest.TestCase):
             self.assertEqual(dy.gcn(), dz.gcn())
 
     def test_abs_cycle_ref(self):
-        data = [
-            {"input": CDateConfig.MIN_ADR, "result": (699, EraMarker.BZ)},
-            {"input": -30_825, "result": (12, EraMarker.BZ)},
-            {"input": 0, "result": (0, EraMarker.BZ)},
-            {"input": 1, "result": (1, EraMarker.BH)},
-            {"input": 1_035_926, "result": (423, EraMarker.BH)},
-            {"input": 1_718_111, "result": (701, EraMarker.CE)},
-            {"input": 1_905_361, "result": (777, EraMarker.CE)},
-            {"input": 1_906_784, "result": (777, EraMarker.CE)},
-            {"input": CDateConfig.APOCALYPSE_EPOCH_ADR, "result": (777, EraMarker.CE)},
-            {"input": 24_541_844, "result": (9999, EraMarker.CE)},
-        ]
-        for item in data:
-            d = CalmarendianDate(item["input"])
-            self.assertTupleEqual(item["result"], d.absolute_cycle_ref())
+        for item in global_data.c_date_data:
+            with self.subTest(i=item.csn):
+                d = CalmarendianDate(item.adr)
+                self.assertTupleEqual((item.acr, item.era_marker), d.absolute_cycle_ref())
 
     def test_abs_season_ref(self):
-        data = [
-            {"input": CDateConfig.MIN_ADR, "result": -4899},
-            {"input": -30_825, "result": -87},
-            {"input": 0, "result": 0},
-            {"input": 1, "result": 1},
-            {"input": 1_035_926, "result": 2955},
-            {"input": 1_718_111, "result": 4901},
-            {"input": 1_905_361, "result": 5435},
-            {"input": 1_906_784, "result": 5439},
-            {"input": CDateConfig.APOCALYPSE_EPOCH_ADR, "result": 5439},
-            {"input": CDateConfig.MAX_ADR, "result": 485_100},
-        ]
-        for item in data:
-            with self.subTest(i=item["input"]):
-                d = CalmarendianDate(item["input"])
-                self.assertEqual(item["result"], d.absolute_season_ref())
+        for item in global_data.c_date_data:
+            with self.subTest(i=item.csn):
+                d = CalmarendianDate(item.adr)
+                self.assertEqual(item.asr, d.absolute_season_ref())
 
     def test_output_csn(self):
         for item in global_data.c_date_data:

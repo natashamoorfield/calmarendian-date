@@ -319,6 +319,9 @@ class CalmarendianDate(object):
             return f"Festival {self.day.number} of {acr}{era_marker}"
         return f"{self.day.name()}{first_separator} Week {self.week.number} of {self.season.name()} {acr}{era_marker}"
 
+    def day_in_season_notation(self):
+        pass
+
     def gcn(self) -> str:
         return self.grand_cycle_notation()
 
