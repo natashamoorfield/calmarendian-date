@@ -2,7 +2,7 @@ from typing import NamedTuple, Union
 
 from npm_calmarendian_date import CalmarendianDate
 from npm_calmarendian_date.exceptions import CalmarendianDateValueError
-from npm_calmarendian_date.calmarendian_date import EraMarker
+from npm_calmarendian_date.c_date_utils import EraMarker
 
 
 class DayInSeason(NamedTuple):

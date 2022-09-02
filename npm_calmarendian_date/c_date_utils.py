@@ -3,6 +3,7 @@ Common utility functions and classes used in various parts of the library.
 """
 import math
 from dataclasses import dataclass
+from enum import Enum
 from typing import Union, Tuple
 
 RealNumber = Union[int, float]
@@ -57,4 +58,16 @@ class DateTimeStruct(object):
     second: int = 0
     microsecond: int = 0
     tz: int = 0
-    
+
+
+class EraMarker(Enum):
+    BZ = "Before Time Zero"
+    BH = "Before History"
+    CE = "Current Era"
+
+
+class AbsoluteCycleRef(object):
+    """
+    Given a (grand_cycle, cycle_in_grand_cycle) pair will create a representation of the cycle
+    comprising the absolute cycle number, relative to cycle zero, with an era marker.
+    """

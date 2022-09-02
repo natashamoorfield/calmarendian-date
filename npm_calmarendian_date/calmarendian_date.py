@@ -6,16 +6,10 @@ from typing import Tuple, Optional
 
 from npm_calmarendian_date import CalmarendianTimeDelta
 from npm_calmarendian_date.c_date_config import CDateConfig
-from npm_calmarendian_date.c_date_utils import DateTimeStruct
+from npm_calmarendian_date.c_date_utils import DateTimeStruct, EraMarker
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
 from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateDomainError
 from npm_calmarendian_date.string_conversions import DateString
-
-
-class EraMarker(Enum):
-    BZ = "Before Time Zero"
-    BH = "Before History"
-    CE = "Current Era"
 
 
 class DayRefDescriptor(Enum):

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import List, Tuple
 
 from npm_calmarendian_date.c_date_config import CDateConfig
-from npm_calmarendian_date.calmarendian_date import EraMarker
+from npm_calmarendian_date.c_date_utils import EraMarker
 from npm_calmarendian_date.exceptions import CalmarendianDateError
 
 
