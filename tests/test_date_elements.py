@@ -183,7 +183,7 @@ class SeasonTest(unittest.TestCase):
             (5, 5, "High Summer", "High ", "H"),
             (6, 6, "Autumn", "Autumn", "A"),
             (7, 1, "Onset", "O", "O")
-       ]
+        ]
         for item in data:
             s, abr, full_name, abbreviation, initial = item
             season = Season(s)

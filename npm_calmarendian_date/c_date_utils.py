@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Union, Tuple
 
+from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle
+
 RealNumber = Union[int, float]
 
 
@@ -69,5 +71,36 @@ class EraMarker(Enum):
 class AbsoluteCycleRef(object):
     """
     Given a (grand_cycle, cycle_in_grand_cycle) pair will create a representation of the cycle
-    comprising the absolute cycle number, relative to cycle zero, with an era marker.
+    comprising the absolute cycle number, relative to cycle zero, with an era marker. And vice versa.
     """
+    def __init__(self, grand_cycle: GrandCycle, cycle_in_grand_cycle: CycleInGrandCycle):
+        self.cycle = abs(((grand_cycle.number - 1) * 700) + cycle_in_grand_cycle.number)
+        self.era_marker = self.calculated_era_marker(grand_cycle.number)
+
+    def calculated_era_marker(self, grand_cycle: int) -> EraMarker:
+        if grand_cycle <= 0:
+            return EraMarker.BZ
+        if 1 <= self.cycle <= 500:
+            return EraMarker.BH
+        return EraMarker.CE
+
+    @classmethod
+    def from_cycle_era(cls, cycle: Union[int, str], era_marker_str: Union[str, None]):
+        """
+        Return an AbsoluteCycleRef object from raw data.
+
+        The cycle and era_marker_str arguments are assumed to have come from a date string that has been matched
+        against RegEx or similarly validated as (the string representation of) an unsigned integer
+         and one of BZ|BH|CE|None.
+        """
+        acr = cls.__new__(cls)
+        acr.cycle = int(cycle)
+        if era_marker_str is None:
+            acr.era_marker = "BH" if 1 <= acr.cycle <= 500 else "CE"
+        else:
+            acr.era_marker = EraMarker[era_marker_str.upper()]
+        return acr
+
+    # TODO Move the normalized_gcn and the check_era_consistency methods from DateString to here.
+
+    # TODO Implement a __str__ method to return a printable representation of the (cycle, era_marker) pair.

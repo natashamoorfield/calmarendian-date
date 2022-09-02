@@ -5,7 +5,9 @@ from npm_calmarendian_date import (
     split_float,
     round_half_away_from_zero
 )
-from npm_calmarendian_date.c_date_utils import DateTimeStruct
+from npm_calmarendian_date.c_date_utils import DateTimeStruct, AbsoluteCycleRef
+import tests.global_data_sets as global_data
+from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle
 
 
 class UtilitiesTest(unittest.TestCase):
@@ -65,6 +67,26 @@ class DateTimeStructTests(unittest.TestCase):
             test_item, expected = item
             with self.subTest(i=index):
                 self.assertTupleEqual(expected, astuple(test_item))
+
+
+class AbsoluteCycleRefTest(unittest.TestCase):
+    def test_default_constructor(self):
+        for item in global_data.c_date_data:
+            grand_cycle = GrandCycle(item.base_elements[0])
+            cycle_in_grand_cycle = CycleInGrandCycle(item.base_elements[1])
+            acr = AbsoluteCycleRef(grand_cycle, cycle_in_grand_cycle)
+            with self.subTest(i=item.csn):
+                self.assertEqual(item.acr, acr.cycle)
+                self.assertEqual(item.era_marker, acr.era_marker)
+
+    def test_from_raw_data(self):
+        for item in global_data.c_date_data:
+            cycle = item.acr
+            era_marker = item.era_marker.name
+            acr = AbsoluteCycleRef.from_cycle_era(cycle, era_marker)
+            with self.subTest(i=item.csn):
+                self.assertEqual(item.acr, acr.cycle)
+                self.assertEqual(item.era_marker, acr.era_marker)
 
 
 if __name__ == '__main__':

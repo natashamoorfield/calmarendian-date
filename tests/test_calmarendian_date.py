@@ -6,7 +6,7 @@ from typing import Any
 from npm_calmarendian_date import CalmarendianDate
 from npm_calmarendian_date import CalmarendianTimeDelta
 from npm_calmarendian_date.c_date_config import CDateConfig
-from npm_calmarendian_date.c_date_utils import DateTimeStruct, EraMarker
+from npm_calmarendian_date.c_date_utils import DateTimeStruct
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
 from npm_calmarendian_date.exceptions import CalmarendianDateError
 import global_data_sets as global_data
