@@ -2,6 +2,7 @@
 Common utility functions and classes used in various parts of the library.
 """
 import math
+import warnings
 from dataclasses import dataclass
 from enum import Enum
 from typing import Union, Tuple
@@ -99,8 +100,32 @@ class AbsoluteCycleRef(object):
             acr.era_marker = "BH" if 1 <= acr.cycle <= 500 else "CE"
         else:
             acr.era_marker = EraMarker[era_marker_str.upper()]
+            acr.check_era_consistency()
         return acr
 
-    # TODO Move the normalized_gcn and the check_era_consistency methods from DateString to here.
+    def normalized_gc_cgc(self) -> Tuple[int, int]:
+        """
+        Return a (grand_cycle, cycle_in_grand_cycle) pair calculated from the object's (cycle, era) pair.
+
+        Note that the process uses the era marker, if set to BZ, to negate the cycle value but
+        otherwise the era marker has no effect on the parsing process.
+        """
+        sign = -1 if self.era_marker == EraMarker.BZ else +1
+        relative_cycle_number = sign * self.cycle
+        gc = math.ceil(relative_cycle_number / 700)
+        cgc = relative_cycle_number + (700 * (1 - gc))
+        return gc, cgc
+
+    def check_era_consistency(self) -> None:
+        """
+        Raise a warning if the era_marker is inconsistent with the cycle number.
+        Do nothing otherwise.
+        """
+        if self.era_marker == EraMarker.CE and self.cycle < 501:
+            warnings.warn(f"DATE STRING: Cycle {self.cycle} is not in Current Era.", category=UserWarning, stacklevel=3)
+        elif self.era_marker == EraMarker.BH and self.cycle > 500:
+            warnings.warn(f"DATE STRING: Cycle {self.cycle} is not Before History.", category=UserWarning, stacklevel=3)
+        elif self.era_marker == EraMarker.BH and self.cycle == 0:
+            warnings.warn(f"DATE STRING: Cycle 0 Era is BZ, not BH.", category=UserWarning, stacklevel=3)
 
     # TODO Implement a __str__ method to return a printable representation of the (cycle, era_marker) pair.

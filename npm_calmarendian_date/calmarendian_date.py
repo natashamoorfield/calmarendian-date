@@ -236,6 +236,8 @@ class CalmarendianDate(object):
         Return the cycle element of the date as a (cycle, era_marker) pair where cycle is the total number of cycles
         before or after Cycle Zero annotated with the appropriate ere marker BZ, BH or CE.
         """
+        # TODO replace existing code with
+        # return AbsoluteCycleRef(self.grand_cycle.number, self.cycle.number)
         acr = abs(((self.grand_cycle.number - 1) * 700) + self.cycle.number)
         if self.grand_cycle.number <= 0:
             em = EraMarker.BZ

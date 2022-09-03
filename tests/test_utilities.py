@@ -1,4 +1,5 @@
 import unittest
+import warnings
 from dataclasses import astuple
 
 from npm_calmarendian_date import (
@@ -78,6 +79,7 @@ class AbsoluteCycleRefTest(unittest.TestCase):
             with self.subTest(i=item.csn):
                 self.assertEqual(item.acr, acr.cycle)
                 self.assertEqual(item.era_marker, acr.era_marker)
+                self.assertEqual(item.base_elements[:2], acr.normalized_gc_cgc())
 
     def test_from_raw_data(self):
         for item in global_data.c_date_data:
@@ -87,6 +89,19 @@ class AbsoluteCycleRefTest(unittest.TestCase):
             with self.subTest(i=item.csn):
                 self.assertEqual(item.acr, acr.cycle)
                 self.assertEqual(item.era_marker, acr.era_marker)
+                self.assertEqual(item.base_elements[:2], acr.normalized_gc_cgc())
+
+    def test_era_consistency_ll(self):
+        for item in global_data.era_consistency_data:
+            with self.subTest(i=item.csn):
+                with warnings.catch_warnings(record=True) as w:
+                    AbsoluteCycleRef.from_cycle_era(*item.cycle_era_pair)
+                    if item.warn_msg:
+                        self.assertEqual(len(w), 1, msg="Warning expected, none raised.")
+                        self.assertIs(w[0].category, UserWarning)
+                        self.assertEqual(item.warn_msg, w[0].message.__str__())
+                    else:
+                        self.assertEqual(len(w), 0, msg="Warning raised, none expected")
 
 
 if __name__ == '__main__':

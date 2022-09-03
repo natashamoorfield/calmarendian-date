@@ -24,18 +24,6 @@ class VeryBasicTests(unittest.TestCase):
 
 
 class UtilityTests(unittest.TestCase):
-    def test_era_consistency_ll(self):
-        for item in global_data.era_consistency_data:
-            with self.subTest(i=item.csn):
-                with warnings.catch_warnings(record=True) as w:
-                    DateString.check_era_consistency(*item.cycle_era_pair)
-                    if item.warn_msg:
-                        self.assertEqual(len(w), 1, msg="Warning expected, none raised.")
-                        self.assertIs(w[0].category, UserWarning)
-                        self.assertEqual(item.warn_msg, w[0].message.__str__())
-                    else:
-                        self.assertEqual(len(w), 0, msg="Warning raised, none expected")
-
     def test_split_day_in_season(self):
         data = [
             # Valid day-in-season numbers
