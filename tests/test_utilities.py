@@ -6,7 +6,7 @@ from npm_calmarendian_date import (
     split_float,
     round_half_away_from_zero
 )
-from npm_calmarendian_date.c_date_utils import DateTimeStruct, AbsoluteCycleRef
+from npm_calmarendian_date.c_date_utils import DateTimeStruct, AbsoluteCycleRef, EraMarker
 import tests.global_data_sets as global_data
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle
 
@@ -68,6 +68,36 @@ class DateTimeStructTests(unittest.TestCase):
             test_item, expected = item
             with self.subTest(i=index):
                 self.assertTupleEqual(expected, astuple(test_item))
+
+
+class EraMarkerTests(unittest.TestCase):
+    def test_ordering(self):
+        a = EraMarker.BZ
+        b = EraMarker.BH
+        c = EraMarker.CE
+        d = EraMarker.CE
+        self.assertTrue(c == d)
+        self.assertTrue(a < b < c)
+        self.assertTrue(a <= b <= c)
+        self.assertTrue(c > b > a)
+        self.assertTrue(c >= b >= a)
+        self.assertTrue(c != b and c != b and b != a)
+
+    def test_type_mismatch(self):
+        a = EraMarker.BZ
+        self.assertRaises(TypeError, a == "BZ")
+
+    def test_show_as_required(self):
+        data = ["BZ", "", "", "BZ", "BH", "", "BZ", "BH", "CE"]
+        era_list = [EraMarker.BZ, EraMarker.BH, EraMarker.CE]
+        index = 0
+
+        for level in era_list:
+            for era_marker in era_list:
+                test_result = "" if level < era_marker else era_marker.name
+                with self.subTest(i=index):
+                    self.assertEqual(data[index], test_result)
+                index += 1
 
 
 class AbsoluteCycleRefTest(unittest.TestCase):

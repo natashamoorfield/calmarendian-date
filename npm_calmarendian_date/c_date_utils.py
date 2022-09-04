@@ -5,6 +5,7 @@ import math
 import warnings
 from dataclasses import dataclass
 from enum import Enum
+from functools import total_ordering, lru_cache
 from typing import Union, Tuple
 
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle
@@ -63,10 +64,32 @@ class DateTimeStruct(object):
     tz: int = 0
 
 
+@total_ordering
 class EraMarker(Enum):
+    """
+    An enumeration of the three eras of the Calendar of Lorelei.
+
+    The items in the enumeration are ordered chronologically meaning that, for example,
+    `EraMarker.BZ` is considered less than `EraMarker.CE`.
+
+    This class is modelled very closely on the OrderedEnum class in
+    https://github.com/woodruffw/ordered_enum, which is licensed under the MIT license.
+    """
+
     BZ = "Before Time Zero"
     BH = "Before History"
     CE = "Current Era"
+
+    @classmethod
+    @lru_cache(maxsize=None)
+    def era_order(cls):
+        return list(cls)
+
+    def __lt__(self, other):
+        if self.__class__ is other.__class__:
+            era_order = self.__class__.era_order()
+            return era_order.index(self) < era_order.index(other)
+        return NotImplemented
 
 
 class AbsoluteCycleRef(object):
