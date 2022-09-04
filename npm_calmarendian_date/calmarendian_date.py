@@ -2,11 +2,11 @@ from dataclasses import astuple
 from enum import Enum
 from functools import total_ordering
 from math import floor
-from typing import Tuple, Optional
+from typing import Tuple
 
 from npm_calmarendian_date import CalmarendianTimeDelta
 from npm_calmarendian_date.c_date_config import CDateConfig
-from npm_calmarendian_date.c_date_utils import DateTimeStruct, EraMarker
+from npm_calmarendian_date.c_date_utils import DateTimeStruct, EraMarker, AbsoluteCycleRef
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
 from npm_calmarendian_date.exceptions import CalmarendianDateError, CalmarendianDateDomainError
 from npm_calmarendian_date.string_conversions import DateString
@@ -231,21 +231,12 @@ class CalmarendianDate(object):
 
         return grand_cycle, cycle, season, week, day
 
-    def absolute_cycle_ref(self) -> Tuple[int, EraMarker]:
+    def absolute_cycle_ref(self) -> AbsoluteCycleRef:
         """
         Return the cycle element of the date as a (cycle, era_marker) pair where cycle is the total number of cycles
         before or after Cycle Zero annotated with the appropriate ere marker BZ, BH or CE.
         """
-        # TODO replace existing code with
-        # return AbsoluteCycleRef(self.grand_cycle.number, self.cycle.number)
-        acr = abs(((self.grand_cycle.number - 1) * 700) + self.cycle.number)
-        if self.grand_cycle.number <= 0:
-            em = EraMarker.BZ
-        elif 1 <= acr <= 500:
-            em = EraMarker.BH
-        else:
-            em = EraMarker.CE
-        return acr, em
+        return AbsoluteCycleRef(self.grand_cycle, self.cycle)
 
     def absolute_season_ref(self) -> int:
         """
@@ -271,30 +262,30 @@ class CalmarendianDate(object):
             self.day.number
         )
 
-    def common_symbolic_notation(self, era_marker: Optional[str] = None) -> str:
+    def common_symbolic_notation(self, era_display: EraMarker = EraMarker.BZ) -> str:
         """
         Return the date as a Common Symbolic Notation date string.
-        :param era_marker: If no era marker is supplied, append an era marker only to dates Before Time Zero.
-        If 'BH' is specified, append an era marker to all dates before the Current Era.
-        If 'CE' is specified, append an era marker to all dates.
-        :return: CSN date string.
+
+        If no era_display or `EraMarker.BZ` is supplied,
+        append an era marker only to dates Before Time Zero.
+        If `EraMarker.BH` is specified, append an era marker to all dates before the Current Era.
+        If 'CE' is specified, append an era marker to all dates including those in Current Era.
         """
-        acr, em = self.absolute_cycle_ref()
-        if isinstance(era_marker, str):
-            era_marker = era_marker.upper()
-        if era_marker == "CE" or (era_marker == "BH" and em == EraMarker.BH) or em == EraMarker.BZ:
-            era_marker = f" {em.name}"
-        else:
-            era_marker = ""
-        return f"{acr:>03}-{self.season.number}-{self.week.number:>02}-{self.day.number}{era_marker}"
+        acr = self.absolute_cycle_ref()
+        return "-".join([
+            acr.cycle_display(z_pad=3),
+            str(self.season.number),
+            str(self.week.number).zfill(2),
+            str(self.day.number)
+        ]) + acr.era_marker_display(display_level=era_display)
 
     def colloquial_date(self, *,
-                        era_marker: Optional[str] = None,
+                        era_display: EraMarker = EraMarker.BZ,
                         verbose: bool = False
                         ) -> str:
         """
         Return the date as a colloquial date string (for example: Monday, Week 7 of Onset 777).
-        :param era_marker: A keyword-only argument whether 'CE' and/or 'BH' era markers should be
+        :param era_display: A keyword-only argument whether 'CE' and/or 'BH' era markers should be
         explicitly included as part of the return string.
         :param verbose: A keyword-only argument which, if True, will cause the separator between the day-of-the-week
         and the week number to be 'of' rather than a comma, and to display the era marker in its verbose form
@@ -302,18 +293,13 @@ class CalmarendianDate(object):
         :return: A colloquial date string.
         """
         first_separator = " of" if verbose else ","
-        acr, em = self.absolute_cycle_ref()
-        if isinstance(era_marker, str):
-            era_marker = era_marker.upper()
-        if era_marker == "CE" or (era_marker == "BH" and em == EraMarker.BH) or em == EraMarker.BZ:
-            era_marker = f" {em.value}" if verbose else f" {em.name}"
-        else:
-            era_marker = ""
+        acr = self.absolute_cycle_ref()
+        cycle = acr.cycle_display(z_pad=0) + acr.era_marker_display(display_level=era_display, verbose=verbose)
         if self.day.festival:
             if verbose:
-                return f"{self.day.name()} of {acr}{era_marker}"
-            return f"Festival {self.day.number} of {acr}{era_marker}"
-        return f"{self.day.name()}{first_separator} Week {self.week.number} of {self.season.name()} {acr}{era_marker}"
+                return f"{self.day.name()} of {cycle}"
+            return f"Festival {self.day.number} of {cycle}"
+        return f"{self.day.name()}{first_separator} Week {self.week.number} of {self.season.name()} {cycle}"
 
     def day_in_season_notation(self):
         pass

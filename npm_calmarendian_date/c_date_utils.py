@@ -151,4 +151,23 @@ class AbsoluteCycleRef(object):
         elif self.era_marker == EraMarker.BH and self.cycle == 0:
             warnings.warn(f"DATE STRING: Cycle 0 Era is BZ, not BH.", category=UserWarning, stacklevel=3)
 
-    # TODO Implement a __str__ method to return a printable representation of the (cycle, era_marker) pair.
+    def era_marker_display(self, *,
+                           display_level: EraMarker = EraMarker.BZ,
+                           verbose: bool = False,
+                           sep: str = chr(0x20)) -> str:
+        """
+        Return a string representation of the passed era_marker.
+
+        If era_marker represents an era after that specified by display_level, return the empty string.
+        Otherwise, return either the verbose representation of the era_marker (e.g. Before Time Zero) or
+        the two letter representation (e.g. BZ), prepended by an (optional) separator string.
+        """
+        if display_level < self.era_marker:
+            return ""
+        if verbose:
+            return f"{sep}{self.era_marker.value}"
+        return f"{sep}{self.era_marker.name}"
+
+    def cycle_display(self, *,
+                      z_pad: int = 3) -> str:
+        return str(self.cycle).zfill(z_pad)

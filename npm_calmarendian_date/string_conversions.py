@@ -1,11 +1,8 @@
-import warnings
-
 from npm_calmarendian_date.exceptions import CalmarendianDateFormatError
 from npm_calmarendian_date.c_date_config import CDateConfig
 from npm_calmarendian_date.c_date_utils import DateTimeStruct, AbsoluteCycleRef
 from npm_calmarendian_date.date_elements import Season
-from typing import Match, Tuple, Union
-from math import ceil
+from typing import Match, Tuple
 
 
 class DateString(object):

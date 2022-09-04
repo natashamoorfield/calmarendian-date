@@ -6,7 +6,7 @@ from typing import Any
 from npm_calmarendian_date import CalmarendianDate
 from npm_calmarendian_date import CalmarendianTimeDelta
 from npm_calmarendian_date.c_date_config import CDateConfig
-from npm_calmarendian_date.c_date_utils import DateTimeStruct
+from npm_calmarendian_date.c_date_utils import DateTimeStruct, EraMarker
 from npm_calmarendian_date.date_elements import GrandCycle, CycleInGrandCycle, Season, Week, Day
 from npm_calmarendian_date.exceptions import CalmarendianDateError
 import global_data_sets as global_data
@@ -118,7 +118,8 @@ class BasicFunctionalityTests(unittest.TestCase):
         for item in global_data.c_date_data:
             with self.subTest(i=item.csn):
                 d = CalmarendianDate(item.adr)
-                self.assertTupleEqual((item.acr, item.era_marker), d.absolute_cycle_ref())
+                self.assertTupleEqual((item.acr, item.era_marker),
+                                      (d.absolute_cycle_ref().cycle, d.absolute_cycle_ref().era_marker))
 
     def test_abs_season_ref(self):
         for item in global_data.c_date_data:
@@ -145,16 +146,16 @@ class BasicFunctionalityTests(unittest.TestCase):
     def test_csn_era_variants(self):
         d = CalmarendianDate(-30_825)
         self.assertEqual("012-4-05-6 BZ", d.common_symbolic_notation())
-        self.assertEqual("012-4-05-6 BZ", d.common_symbolic_notation(era_marker="BH"))
-        self.assertEqual("012-4-05-6 BZ", d.common_symbolic_notation(era_marker="CE"))
+        self.assertEqual("012-4-05-6 BZ", d.common_symbolic_notation(era_display=EraMarker.BH))
+        self.assertEqual("012-4-05-6 BZ", d.common_symbolic_notation(era_display=EraMarker.CE))
         d = CalmarendianDate(1_035_926)
         self.assertEqual("423-1-23-4", d.common_symbolic_notation())
-        self.assertEqual("423-1-23-4 BH", d.common_symbolic_notation(era_marker="BH"))
-        self.assertEqual("423-1-23-4 BH", d.common_symbolic_notation(era_marker="CE"))
+        self.assertEqual("423-1-23-4 BH", d.common_symbolic_notation(era_display=EraMarker.BH))
+        self.assertEqual("423-1-23-4 BH", d.common_symbolic_notation(era_display=EraMarker.CE))
         d = CalmarendianDate(1_905_361)
         self.assertEqual("777-3-04-5", d.common_symbolic_notation())
-        self.assertEqual("777-3-04-5", d.common_symbolic_notation(era_marker="BH"))
-        self.assertEqual("777-3-04-5 CE", d.common_symbolic_notation(era_marker="ce"))
+        self.assertEqual("777-3-04-5", d.common_symbolic_notation(era_display=EraMarker.BH))
+        self.assertEqual("777-3-04-5 CE", d.common_symbolic_notation(era_display=EraMarker.CE))
 
     def test_resolution(self):
         self.assertIsInstance(CalmarendianDate.resolution, CalmarendianTimeDelta)
@@ -355,67 +356,75 @@ class ColloquialDateTests(unittest.TestCase):
     def test_colloquial_standard(self):
         d = CalmarendianDate(-1_230_683)
         self.assertEqual("Sunday, Week 6 of High Summer 501 BZ", d.colloquial_date())
-        self.assertEqual("Sunday, Week 6 of High Summer 501 BZ", d.colloquial_date(era_marker="BH"))
-        self.assertEqual("Sunday, Week 6 of High Summer 501 BZ", d.colloquial_date(era_marker="ce"))
+        self.assertEqual("Sunday, Week 6 of High Summer 501 BZ", d.colloquial_date(era_display=EraMarker.BH))
+        self.assertEqual("Sunday, Week 6 of High Summer 501 BZ", d.colloquial_date(era_display=EraMarker.CE))
         d = CalmarendianDate(543_511)
         self.assertEqual("Saturday, Week 5 of Perihelion 222", d.colloquial_date())
-        self.assertEqual("Saturday, Week 5 of Perihelion 222 BH", d.colloquial_date(era_marker="BH"))
-        self.assertEqual("Saturday, Week 5 of Perihelion 222 BH", d.colloquial_date(era_marker="CE"))
+        self.assertEqual("Saturday, Week 5 of Perihelion 222 BH", d.colloquial_date(era_display=EraMarker.BH))
+        self.assertEqual("Saturday, Week 5 of Perihelion 222 BH", d.colloquial_date(era_display=EraMarker.CE))
         d = CalmarendianDate(1_907_242)
         self.assertEqual("Wednesday, Week 22 of Midwinter 778", d.colloquial_date())
-        self.assertEqual("Wednesday, Week 22 of Midwinter 778", d.colloquial_date(era_marker="BH"))
-        self.assertEqual("Wednesday, Week 22 of Midwinter 778 CE", d.colloquial_date(era_marker="CE"))
+        self.assertEqual("Wednesday, Week 22 of Midwinter 778", d.colloquial_date(era_display=EraMarker.BH))
+        self.assertEqual("Wednesday, Week 22 of Midwinter 778 CE", d.colloquial_date(era_display=EraMarker.CE))
 
     def test_colloquial_festival(self):
         d = CalmarendianDate(-171_812)
         self.assertEqual("Festival 6 of 70 BZ", d.colloquial_date())
-        self.assertEqual("Festival 6 of 70 BZ", d.colloquial_date(era_marker="BH"))
-        self.assertEqual("Festival 6 of 70 BZ", d.colloquial_date(era_marker="CE"))
+        self.assertEqual("Festival 6 of 70 BZ", d.colloquial_date(era_display=EraMarker.BH))
+        self.assertEqual("Festival 6 of 70 BZ", d.colloquial_date(era_display=EraMarker.CE))
         d = CalmarendianDate(1_200_210)
         self.assertEqual("Festival 1 of 489", d.colloquial_date())
-        self.assertEqual("Festival 1 of 489 BH", d.colloquial_date(era_marker="BH"))
-        self.assertEqual("Festival 1 of 489 BH", d.colloquial_date(era_marker="CE"))
+        self.assertEqual("Festival 1 of 489 BH", d.colloquial_date(era_display=EraMarker.BH))
+        self.assertEqual("Festival 1 of 489 BH", d.colloquial_date(era_display=EraMarker.CE))
         d = CalmarendianDate.from_numbers(2, 77, 7, 51, 7)
         self.assertEqual("Festival 7 of 777", d.colloquial_date())
-        self.assertEqual("Festival 7 of 777", d.colloquial_date(era_marker="BH"))
-        self.assertEqual("Festival 7 of 777 CE", d.colloquial_date(era_marker="CE"))
+        self.assertEqual("Festival 7 of 777", d.colloquial_date(era_display=EraMarker.BH))
+        self.assertEqual("Festival 7 of 777 CE", d.colloquial_date(era_display=EraMarker.CE))
 
     def test_colloquial_standard_verbose(self):
         d = CalmarendianDate(-1_559_813)
         self.assertEqual("Monday of Week 23 of Perihelion 635 Before Time Zero",
                          d.colloquial_date(verbose=True))
         self.assertEqual("Monday of Week 23 of Perihelion 635 Before Time Zero",
-                         d.colloquial_date(era_marker="BH", verbose=True))
+                         d.colloquial_date(era_display=EraMarker.BH, verbose=True))
         self.assertEqual("Monday of Week 23 of Perihelion 635 Before Time Zero",
-                         d.colloquial_date(era_marker="CE", verbose=True))
+                         d.colloquial_date(era_display=EraMarker.CE, verbose=True))
         d = CalmarendianDate(3)
         self.assertEqual("Wednesday of Week 1 of Midwinter 1",
                          d.colloquial_date(verbose=True))
         self.assertEqual("Wednesday of Week 1 of Midwinter 1 Before History",
-                         d.colloquial_date(era_marker="BH", verbose=True))
+                         d.colloquial_date(era_display=EraMarker.BH, verbose=True))
         self.assertEqual("Wednesday of Week 1 of Midwinter 1 Before History",
-                         d.colloquial_date(era_marker="CE", verbose=True))
+                         d.colloquial_date(era_display=EraMarker.CE, verbose=True))
         d = CalmarendianDate(1_484_537)
         self.assertEqual("Friday of Week 45 of Autumn 605",
                          d.colloquial_date(verbose=True))
         self.assertEqual("Friday of Week 45 of Autumn 605",
-                         d.colloquial_date(era_marker="BH", verbose=True))
+                         d.colloquial_date(era_display=EraMarker.BH, verbose=True))
         self.assertEqual("Friday of Week 45 of Autumn 605 Current Era",
-                         d.colloquial_date(era_marker="CE", verbose=True))
+                         d.colloquial_date(era_display=EraMarker.CE, verbose=True))
 
     def test_colloquial_festival_verbose(self):
         d = CalmarendianDate(-323_986)
-        self.assertEqual("Festival Four of 132 Before Time Zero", d.colloquial_date(verbose=True))
-        self.assertEqual("Festival Four of 132 Before Time Zero", d.colloquial_date(era_marker="BH", verbose=True))
-        self.assertEqual("Festival Four of 132 Before Time Zero", d.colloquial_date(era_marker="CE", verbose=True))
+        self.assertEqual("Festival Four of 132 Before Time Zero",
+                         d.colloquial_date(verbose=True))
+        self.assertEqual("Festival Four of 132 Before Time Zero",
+                         d.colloquial_date(era_display=EraMarker.BH, verbose=True))
+        self.assertEqual("Festival Four of 132 Before Time Zero",
+                         d.colloquial_date(era_display=EraMarker.CE, verbose=True))
         d = CalmarendianDate(1_048_041)
         self.assertEqual("Festival Seven of 427", d.colloquial_date(verbose=True))
-        self.assertEqual("Festival Seven of 427 Before History", d.colloquial_date(era_marker="BH", verbose=True))
-        self.assertEqual("Festival Seven of 427 Before History", d.colloquial_date(era_marker="CE", verbose=True))
+        self.assertEqual("Festival Seven of 427 Before History",
+                         d.colloquial_date(era_display=EraMarker.BH, verbose=True))
+        self.assertEqual("Festival Seven of 427 Before History",
+                         d.colloquial_date(era_display=EraMarker.CE, verbose=True))
         d = CalmarendianDate(1_718_101)
-        self.assertEqual("Festival Eight of 700", d.colloquial_date(verbose=True))
-        self.assertEqual("Festival Eight of 700", d.colloquial_date(era_marker="BH", verbose=True))
-        self.assertEqual("Festival Eight of 700 Current Era", d.colloquial_date(era_marker="CE", verbose=True))
+        self.assertEqual("Festival Eight of 700",
+                         d.colloquial_date(verbose=True))
+        self.assertEqual("Festival Eight of 700",
+                         d.colloquial_date(era_display=EraMarker.BH, verbose=True))
+        self.assertEqual("Festival Eight of 700 Current Era",
+                         d.colloquial_date(era_display=EraMarker.CE, verbose=True))
 
     def test_str_and_repr(self):
         data = [
